@@ -18,6 +18,10 @@ class DatabaseService:
             logger.error(f"Error fetching products: {e}")
             return []
 
+    async def get_all_products(self) -> List[Dict[str, Any]]:
+        """Get all products from database (alias for get_products)"""
+        return await self.get_products()
+
     async def get_branches(self) -> List[Dict[str, Any]]:
         """Get all branches from database"""
         try:

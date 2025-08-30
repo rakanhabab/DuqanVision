@@ -125,6 +125,10 @@ class RAGService:
                 "confidence": 0.0
             }
 
+    async def get_rag_response(self, question: str, user_id: Optional[str] = None) -> Dict[str, Any]:
+        """Get RAG response (alias for ask_rag)"""
+        return await self.ask_rag(question, user_id)
+
     def _add_context_to_question(self, question: str, user_id: Optional[str] = None) -> str:
         """Add context awareness to questions with pronouns"""
         try:
