@@ -1,5 +1,7 @@
 import os
 os.environ["ULTRALYTICS_LAP"] = "scipy"
+os.environ["OPENCV_VIDEOIO_PRIORITY_MSMF"] = "0"
+os.environ["OPENCV_VIDEOIO_PRIORITY_DSHOW"] = "1"
 import cv2
 import numpy as np
 from ultralytics import YOLO
@@ -55,8 +57,8 @@ def push_session_update(track_id: int, cart_items_list: list, status: str = "pro
 
 INVOICE_API_URL = "http://127.0.0.1:8000/invoices"
 
-MOTION_CAM_INDEX = 0        # YOLO tracking camera
-QR_CAM_INDEX = 1            # QR scanning camera
+MOTION_CAM_INDEX = 1        # YOLO tracking camera
+QR_CAM_INDEX = 0            # QR scanning camera
 TABLE_A_CAM_INDEX = 2       # snapshot camera for Table A (unused; replaced by snapshot requests)
 TABLE_B_CAM_INDEX = 3       # snapshot camera for Table B (unused; replaced by snapshot requests)
 
@@ -560,8 +562,7 @@ def main():
         classes=[PERSON_CLASS_ID],
         tracker="bytetrack.yaml",
         verbose=False,
-        imgsz=640,      # add this
-        vid_stride=2 
+        imgsz=640,      # add this 
     )
 
     detector = cv2.QRCodeDetector()

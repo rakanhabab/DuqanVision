@@ -388,7 +388,7 @@ def api_video_feed():
     """Serve an MJPEG stream of frames from the default camera."""
     def gen():
         try:
-            cap = _get_cap()
+            cap = cv2.VideoCapture(1)
         except Exception as exc:
             # yield empty frames in error state to avoid connection drop
             print(f"[video_feed] camera error: {exc}")
