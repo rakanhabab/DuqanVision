@@ -87,10 +87,26 @@ function displayInvoicesTable(invoices) {
     invoices.forEach(invoice => {
         const invoiceRow = document.createElement('div');
         invoiceRow.className = 'invoice-row';
+        // Get branch name based on branch_id
+        let branchName = 'غير محدد';
+        if (invoice.branch_id) {
+            switch (invoice.branch_id) {
+                case '9852c8e7-0be0-4f5c-aa8d-68e289fe9552':
+                    branchName = 'فرع العليا';
+                    break;
+                case 'af73abd0-04f7-44bb-b0d6-396a58cbd33a':
+                    branchName = 'فرع الياسمين';
+                    break;
+                case '130df862-b9e2-4233-8d67-d87a3d3b8323':
+                    branchName = 'فرع الملقا';
+                    break;
+            }
+        }
+        
         invoiceRow.innerHTML = `
             <div class="invoice-id">#${invoice.id}</div>
             <div class="invoice-date">${db.formatDate(invoice.timestamp)}</div>
-            <div class="invoice-branch">غير محدد</div>
+            <div class="invoice-branch">${branchName}</div>
             <div class="invoice-actions">
                 <button class="btn btn-view" onclick="window.location.href='invoice-view.html?id=${invoice.id}'">عرض</button>
                 <button class="btn btn-print" onclick="printInvoice('${invoice.id}')">طباعة</button>

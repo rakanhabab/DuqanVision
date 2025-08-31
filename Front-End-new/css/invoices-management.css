@@ -1,22 +1,5 @@
 /* Invoices Management Page Styles */
 
-/* Back button */
-.btn-back {
-  background: linear-gradient(135deg, #c4b5fd 0%, #fdba74 100%);
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-back:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(196, 181, 253, 0.3);
-}
-
 /* Body and main layout */
 body {
   background:
@@ -31,7 +14,7 @@ body {
 }
 
 .main {
-  padding: 0;
+  padding: 80px 0 0 0; /* Added top padding to account for fixed nav */
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -238,7 +221,7 @@ body {
 .management-section {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: auto; /* Changed from 100% to auto */
 }
 
 .management-section h3 {
@@ -268,7 +251,7 @@ body {
   flex-direction: column;
   gap: 20px;
   margin-bottom: 24px;
-  flex-grow: 1;
+  flex-grow: 0; /* Changed from 1 to 0 */
 }
 
 .management-item {
@@ -313,7 +296,7 @@ body {
   background: #f3f4f6;
   border-radius: 8px;
   border: 2px solid #8b5cf6;
-  margin-top: auto;
+  margin-top: 0; /* Changed from auto to 0 to place it right after the list */
 }
 
 .management-info p {

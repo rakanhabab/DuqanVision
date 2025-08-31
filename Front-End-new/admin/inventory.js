@@ -188,6 +188,7 @@ class InventoryService {
             <td>${db.formatCurrency(product.price || 0)}</td>
             <td>${qty}</td>
             <td>${this.createStatusBadge(statusInfo)}</td>
+            <td><button class="edit-btn" onclick="editProduct('${product.id}')">تعديل</button></td>
         `;
         
         row.style.animationDelay = `${index * 0.1}s`;
@@ -247,17 +248,8 @@ class InventoryService {
     initializeSearchAndFilter() {
         const branchSelect = document.getElementById('branchSelect');
         const searchInput = document.getElementById('searchInput');
-        const applyBtn = document.getElementById('applyBtn');
         
-        if (!branchSelect || !searchInput || !applyBtn) return;
-        
-        // Apply button click handler
-        applyBtn.addEventListener('click', (e) => {
-            const branchNum = branchSelect.value;
-            const searchTerm = searchInput.value.trim();
-            
-            this.filterInventory(branchNum, searchTerm);
-        });
+        if (!branchSelect || !searchInput) return;
         
         // Branch select change handler
         branchSelect.addEventListener('change', (e) => {
@@ -265,13 +257,6 @@ class InventoryService {
             const searchTerm = searchInput.value.trim();
             
             this.filterInventory(branchNum, searchTerm);
-        });
-        
-        // Enter key handler for search input
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                applyBtn.click();
-            }
         });
         
         // Real-time search
@@ -485,12 +470,151 @@ class InventoryService {
             });
         }
     }
+
+    editProduct(productId) {
+        // Find the product in the inventory data
+        const product = this.inventoryData.find(item => item.id === productId);
+        
+        if (!product) {
+            this.showNotification('لم يتم العثور على المنتج', 'error');
+            return;
+        }
+
+        // Show edit modal
+        this.showEditModal(product);
+    }
+
+    showEditModal(product) {
+        // Remove existing modal
+        const existingModal = document.querySelector('.edit-modal-overlay');
+        if (existingModal) {
+            existingModal.remove();
+        }
+
+        // Create modal overlay
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'edit-modal-overlay';
+        modalOverlay.innerHTML = `
+            <div class="edit-modal">
+                <div class="edit-modal-header">
+                    <h3>تعديل المنتج: ${product.name}</h3>
+                    <button class="modal-close" onclick="this.closest('.edit-modal-overlay').remove()">&times;</button>
+                </div>
+                <div class="edit-modal-body">
+                    <form id="editProductForm">
+                        <div class="form-group">
+                            <label for="editProductName">اسم المنتج</label>
+                            <input type="text" id="editProductName" value="${product.name}" required>
+                        </div>
+                                                 <div class="form-group">
+                             <label for="editProductSku">SKU</label>
+                             <input type="text" id="editProductSku" value="${product.id}" readonly>
+                         </div>
+                        <div class="form-group">
+                            <label for="editProductCategory">الفئة</label>
+                            <input type="text" id="editProductCategory" value="${product.category}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editProductShelf">الرف</label>
+                            <input type="text" id="editProductShelf" value="${product.shelf}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editProductPrice">السعر</label>
+                            <input type="number" id="editProductPrice" value="${product.price}" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editProductQuantity">الكمية</label>
+                            <input type="number" id="editProductQuantity" value="${product.quantity}" required>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="cancel-btn" onclick="this.closest('.edit-modal-overlay').remove()">إلغاء</button>
+                            <button type="submit" class="save-btn">حفظ التغييرات</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+
+        // Add modal to page
+        document.body.appendChild(modalOverlay);
+
+        // Handle form submission
+        const form = modalOverlay.querySelector('#editProductForm');
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.saveProductChanges(product.id, modalOverlay);
+        });
+
+        // Close modal when clicking overlay
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                modalOverlay.remove();
+            }
+        });
+    }
+
+    async saveProductChanges(productId, modalOverlay) {
+        try {
+            const formData = {
+                name: document.getElementById('editProductName').value,
+                category: document.getElementById('editProductCategory').value,
+                shelf: document.getElementById('editProductShelf').value,
+                price: parseFloat(document.getElementById('editProductPrice').value),
+                quantity: parseInt(document.getElementById('editProductQuantity').value)
+            };
+
+            // Update product in database
+            const { error } = await db.supabase
+                .from('products')
+                .update({
+                    name: formData.name,
+                    category: formData.category,
+                    price: formData.price
+                })
+                .eq('id', productId);
+
+            if (error) {
+                throw error;
+            }
+
+            // Update inventory quantity
+            const { error: inventoryError } = await db.supabase
+                .from('inventory')
+                .update({ quantity: formData.quantity })
+                .eq('product_id', productId);
+
+            if (inventoryError) {
+                throw inventoryError;
+            }
+
+            // Close modal
+            modalOverlay.remove();
+
+            // Show success message
+            this.showNotification('تم حفظ التغييرات بنجاح', 'success');
+
+            // Refresh inventory data
+            await this.loadInventoryData();
+            this.updateInventoryDisplay();
+
+        } catch (error) {
+            console.error('Error saving product changes:', error);
+            this.showNotification('خطأ في حفظ التغييرات', 'error');
+        }
+    }
 }
 
 // Initialize inventory service when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-    new InventoryService();
+    window.inventoryService = new InventoryService();
 });
+
+// Global function for edit button
+window.editProduct = function(productId) {
+    if (window.inventoryService) {
+        window.inventoryService.editProduct(productId);
+    }
+};
 
 // Global keyboard shortcuts
 document.addEventListener('keydown', function(event) {

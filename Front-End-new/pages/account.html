@@ -61,12 +61,47 @@
                 <label>تأكيد كلمة المرور</label>
                 <input type="password" id="confirmPassword" placeholder="أعد إدخال كلمة المرور" />
               </div>
-            </div>
+                         </div>
 
-            <div class="actions actions-duo">
+             <div class="actions actions-duo">
               <button type="button" id="applyBtn" class="btn btn-accent">إجراء تغييرات</button>
               <button type="submit" id="saveBtn" class="btn btn-purple">حفظ التغييرات</button>
               <button type="button" id="cancelBtn" class="btn btn-outline">إلغاء</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Payment Information Card -->
+        <div class="card payment-card">
+          <h2 class="page-title">معلومات الدفع</h2>
+          <form id="paymentForm" class="payment-form">
+            <div class="grid-2">
+              <div>
+                <label>اسم حامل البطاقة</label>
+                <input type="text" id="cardHolderName" placeholder="الاسم كما يظهر على البطاقة" required />
+              </div>
+              <div>
+                <label>رقم البطاقة</label>
+                <input type="text" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19" required />
+              </div>
+                             <div>
+                 <label>سنة انتهاء الصلاحية</label>
+                 <input type="text" id="expiryDate" placeholder="2025" maxlength="4" required />
+               </div>
+                             <div>
+                 <label>رمز الأمان (CVV)</label>
+                 <input type="text" id="cvv" placeholder="123" maxlength="4" required />
+               </div>
+            </div>
+
+            <div class="payment-security">
+              🔒 جميع معلومات الدفع مشفرة ومؤمنة. لن نشارك بياناتك مع أي طرف ثالث.
+            </div>
+
+            <div class="actions actions-duo">
+              <button type="button" id="applyPaymentBtn" class="btn btn-accent">تطبيق التغييرات</button>
+              <button type="submit" id="savePaymentBtn" class="btn btn-purple">حفظ معلومات الدفع</button>
+              <button type="button" id="cancelPaymentBtn" class="btn btn-outline">إلغاء</button>
             </div>
           </form>
         </div>

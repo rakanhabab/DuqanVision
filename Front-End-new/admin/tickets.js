@@ -37,9 +37,10 @@ class TicketsService {
 
     updateStats() {
         const total = this.ticketsData.length;
-        // DB uses 'pending' and 'approved'
+        // Count tickets by status
         const pending = this.ticketsData.filter(t => (t.status || '').toLowerCase() === 'pending').length;
-        const resolved = this.ticketsData.filter(t => (t.status || '').toLowerCase() === 'approved').length;
+        const approved = this.ticketsData.filter(t => (t.status || '').toLowerCase() === 'approved').length;
+        const resolved = approved; // Approved tickets are considered resolved
         // Sum refund_price (numeric)
         const refundTotal = this.ticketsData.reduce((sum, t) => sum + (Number(t.refund_price) || 0), 0);
 
@@ -150,12 +151,33 @@ class TicketsService {
         }
     }
 
-    parseProductsAndQuantities(productsString) {
+    parseProductsAndQuantities(productsData) {
         try {
-            if (!productsString) return [];
-            return JSON.parse(productsString);
+            // If it's already an array, return it
+            if (Array.isArray(productsData)) {
+                return productsData;
+            }
+            
+            // If it's a string, try to parse it as JSON
+            if (typeof productsData === 'string') {
+                const parsed = JSON.parse(productsData);
+                return Array.isArray(parsed) ? parsed : [];
+            }
+            
+            // If it's null or undefined, return empty array
+            if (!productsData) {
+                return [];
+            }
+            
+            // If it's an object, try to convert it to array
+            if (typeof productsData === 'object') {
+                return [productsData];
+            }
+            
+            return [];
         } catch (error) {
             console.error('Error parsing products:', error);
+            console.error('Products data:', productsData);
             return [];
         }
     }
@@ -190,7 +212,10 @@ class TicketsService {
                 return;
             }
 
+            console.log('Ticket data from database:', ticket);
+            
             const products = this.parseProductsAndQuantities(ticket.products_and_quantities);
+            console.log('Parsed products:', products);
             
             // Create modal content
             const modalContent = `
@@ -205,13 +230,18 @@ class TicketsService {
                     </div>
                     <div class="products-details">
                         <h4>المنتجات المطلوب استردادها:</h4>
-                        ${products.map(product => `
+                        ${products.length > 0 ? products.map(product => `
                             <div class="product-detail">
-                                <span class="product-name">${product.name}</span>
-                                <span class="product-quantity">الكمية: ${product.quantity}</span>
-                                <span class="product-price">السعر: ${db.formatCurrency(product.line_total)}</span>
+                                <div class="product-info">
+                                    <span class="product-name">${product.name || 'منتج غير محدد'}</span>
+                                    <span class="product-quantity">الكمية: ${product.quantity || 0}</span>
+                                </div>
+                                <div class="product-pricing">
+                                    <span class="product-unit-price">سعر الوحدة: ${db.formatCurrency(product.price || 0)}</span>
+                                    <span class="product-total-price">الإجمالي: ${db.formatCurrency(product.line_total || (product.price * product.quantity) || 0)}</span>
+                                </div>
                             </div>
-                        `).join('')}
+                        `).join('') : '<p class="no-products">لا توجد منتجات مسجلة</p>'}
                     </div>
                 </div>
             `;
@@ -281,14 +311,10 @@ class TicketsService {
     initializeFilters() {
         // Add event listeners for filters
         const statusFilter = document.getElementById('statusFilter');
-        const typeFilter = document.getElementById('typeFilter');
         const dateFilter = document.getElementById('dateFilter');
         
         if (statusFilter) {
             statusFilter.addEventListener('change', () => this.filterTickets());
-        }
-        if (typeFilter) {
-            typeFilter.addEventListener('change', () => this.filterTickets());
         }
         if (dateFilter) {
             dateFilter.addEventListener('change', () => this.filterTickets());
@@ -305,17 +331,11 @@ class TicketsService {
 
     filterTickets() {
         const statusFilter = document.getElementById('statusFilter')?.value || 'all';
-        const typeFilter = document.getElementById('typeFilter')?.value || 'all';
         const dateFilter = document.getElementById('dateFilter')?.value || 'all';
         
         let filteredTickets = this.ticketsData.filter(ticket => {
             // Status filter
             if (statusFilter !== 'all' && ticket.status !== statusFilter) {
-                return false;
-            }
-            
-            // Type filter (if you have ticket types)
-            if (typeFilter !== 'all' && ticket.type !== typeFilter) {
                 return false;
             }
             
@@ -326,7 +346,10 @@ class TicketsService {
                 
                 switch (dateFilter) {
                     case 'today':
-                        return ticketDate.toDateString() === today.toDateString();
+                        // Get yesterday's date
+                        const yesterday = new Date(today);
+                        yesterday.setDate(today.getDate() - 1);
+                        return ticketDate.toDateString() === yesterday.toDateString();
                     case 'week':
                         const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
                         return ticketDate >= weekAgo;
@@ -357,8 +380,12 @@ class TicketsService {
         }
         
         const filteredTickets = this.ticketsData.filter(ticket => {
+            // Search in multiple fields
             return (ticket.id && ticket.id.toLowerCase().includes(searchTerm)) ||
-                   (ticket.invoice_id && ticket.invoice_id.toLowerCase().includes(searchTerm));
+                   (ticket.ticket_num && ticket.ticket_num.toLowerCase().includes(searchTerm)) ||
+                   (ticket.invoice_id && ticket.invoice_id.toLowerCase().includes(searchTerm)) ||
+                   (ticket.invoice_num && ticket.invoice_num.toLowerCase().includes(searchTerm)) ||
+                   (ticket.status && ticket.status.toLowerCase().includes(searchTerm));
         });
         
         // Sort filtered tickets: pending first, then by timestamp
@@ -443,7 +470,7 @@ class TicketsService {
             // Update ticket status in database
             const { data, error } = await db.supabase
                 .from('tickets')
-                .update({ status: 'in_progress' })
+                .update({ status: 'approved' })
                 .eq('id', ticketId)
                 .select()
                 .single();
@@ -452,7 +479,7 @@ class TicketsService {
                 // Update local data
                 const ticketIndex = this.ticketsData.findIndex(t => t.id === ticketId);
                 if (ticketIndex !== -1) {
-                    this.ticketsData[ticketIndex].status = 'in_progress';
+                    this.ticketsData[ticketIndex].status = 'approved';
                 }
                 
                 // Refresh table
@@ -730,15 +757,63 @@ style.textContent = `
     .product-detail {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 10px;
-        padding-bottom: 10px;
-        border-bottom: 1px dashed #e2e8f0;
+        align-items: flex-start;
+        margin-bottom: 15px;
+        padding: 15px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: #f8fafc;
+    }
+    
+    .product-info {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .product-pricing {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        text-align: left;
+    }
+    
+    .product-name {
+        font-weight: 600;
+        color: #2d3748;
+        font-size: 1rem;
+    }
+    
+    .product-quantity {
+        color: #4a5568;
+        font-size: 0.9rem;
+    }
+    
+    .product-unit-price {
+        color: #718096;
+        font-size: 0.85rem;
+    }
+    
+    .product-total-price {
+        font-weight: 600;
+        color: #2d3748;
+        font-size: 0.95rem;
     }
 
     .product-detail:last-child {
         border-bottom: none;
         margin-bottom: 0;
         padding-bottom: 0;
+    }
+    
+    .no-products {
+        text-align: center;
+        color: #718096;
+        font-style: italic;
+        padding: 20px;
+        background: #f8fafc;
+        border-radius: 8px;
+        margin: 10px 0;
     }
 `;
 document.head.appendChild(style);

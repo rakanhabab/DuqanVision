@@ -3,9 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>دكان فيجين - باركود الدخول</title>
-  <meta name="description" content="صفحة الباركود ومسح المنتجات - دكان فيجين" />
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <title>باركود الدخول - دكان فيجين</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <link rel="stylesheet" href="../css/base.css">
   <link rel="stylesheet" href="../css/qr.css">
@@ -14,83 +13,47 @@
   <header class="header">
     <div class="wrap">
       <div class="brand">
-        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDYiIGhlaWdodD0iNDYiIHZpZXdCb3g9IjAgMCA0NiA0NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ2IiBoZWlnaHQ9IjQ2IiByeD0iOCIgZmlsbD0idXJsKCNncmFkaWVudDApIi8+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9ImdyYWRpZW50MCIgeDE9IjAiIHkxPSIwIiB4Mj0iNDYiIHkyPSI0NiIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjZjk3MzE2Ii8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzhjNWNmNiIvPgo8L2xpbmVhckdyYWRpZW50Pgo8L2RlZnM+Cjwvc3ZnPgo=" alt="Dukkan Vision">
+        <img src="../img/Logo.png" alt="Dukkan Vision" />
         <span>دكان فيجين</span>
       </div>
       <div class="grow"></div>
-      <a href="../pages/user.html" class="btn btn-sm" style="background:#f3f4f6;color:#374151;border-radius:8px;">رجوع للوحة المستخدم</a>
+      <button type="button" class="btn btn-back" onclick="history.back()">رجوع</button>
     </div>
   </header>
 
   <main class="main">
     <div class="wrap">
-      <div id="page-barcode" class="page active">
-        <div class="main-grid">
-          <div class="sidebar">
-            <div class="card">
+      <div class="qr-layout">
+        <div class="card main-card">
+          <h2 class="page-title">باركود دخول المتجر</h2>
+          
+          <div class="qr-content">
+            <div class="instructions-section">
               <h3>طريقة الاستخدام</h3>
-              <ol>
-                <li>افتح باركود <strong>دكان فيجين</strong> عند الدخول.</li>
-                <li>وجّه الباركود إلى جهاز القارئ على البوابة.</li>
-                <li>بعد الإذن بالدخول، التقط وأعد المنتجات بحرّية.</li>
-                <li>غادر المتجر — الفاتورة تُرسل إلى بريدك.</li>
-              </ol>
-              <button class="back" id="backDash">➡ رجوع</button>
-            </div>
-            <div class="bar">
-              <h4>محاكاة المسح</h4>
-              <p class="helper">هذا فقط للاختبار داخل الواجهة.</p>
-              <button class="simulate" id="simulateScan">محاكاة مسح الباركود</button>
-            </div>
-          </div>
-          <div class="content">
-            <div class="card">
-              <div id="qr" class="qr-box"></div>
-              <h3 style="margin-top:0">باركود دخول المتجر</h3>
-              <div id="qrcode" style="width:100%;max-width:400px;margin:0 auto;text-align:center;">
-                <div style="margin-top: 15px; font-size: 14px; color: #666;">QR Code - دكان فيجين</div>
+              <div class="instructions-list">
+                <div class="instruction-item">
+                  <div class="instruction-number">1</div>
+                  <div class="instruction-text">افتح باركود <span class="highlight">دكان فيجين</span> عند الدخول.</div>
+                </div>
+                <div class="instruction-item">
+                  <div class="instruction-number">2</div>
+                  <div class="instruction-text">وجّه الباركود إلى جهاز القارئ على البوابة.</div>
+                </div>
+                <div class="instruction-item">
+                  <div class="instruction-number">3</div>
+                  <div class="instruction-text">بعد الإذن بالدخول، التقط وأعد المنتجات بحرّية.</div>
+                </div>
+                <div class="instruction-item">
+                  <div class="instruction-number">4</div>
+                  <div class="instruction-text">غادر المتجر — الفاتورة تُرسل إلى بريدك.</div>
+                </div>
               </div>
-              <div class="helper">هذا الرمز يعبّر عن رقم دخولك (ID).</div>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <div id="page-barcode-scan" class="page">
-        <div class="main-grid">
-          <div class="sidebar">
-            <div class="card">
-              <h3>محاكاة مسح الباركود</h3>
-              <p class="helper">هذه الصفحة لمحاكاة عملية مسح الباركود في المتجر.</p>
-              <button class="back" id="backToDashboard">➡ رجوع</button>
-            </div>
-          </div>
-          <div class="content">
-            <div class="card">
-              <h3 style="margin-top:0">نظام مسح الباركود</h3>
-              <div class="scan-grid">
-                <div class="camera-area" id="cameraArea">
-                  <div class="camera-placeholder">
-                    <div style="font-size: 48px; margin-bottom: 10px;">📷</div>
-                    <div>كاميرا الكشف عن المنتجات</div>
-                    <div style="font-size: 12px; margin-top: 5px;">سيتم استبدالها بستريمر حقيقي</div>
-                  </div>
-                  <button class="btn btn-purple full" id="simulateProduct">محاكاة اكتشاف منتج</button>
-                </div>
-                <div class="cart-panel">
-                  <h4 style="margin-top: 0; margin-bottom: 15px;">🛒 سلة المشتريات</h4>
-                  <div id="cartItems" class="cart-items">
-                    <div class="cart-empty">
-                      <div style="font-size: 24px; margin-bottom: 10px;">🛒</div>
-                      <div>السلة فارغة</div>
-                      <div style="font-size: 12px; margin-top: 5px;">سيتم إضافة المنتجات تلقائياً</div>
-                    </div>
-                  </div>
-                  <div class="cart-total">
-                    <div class="row"><strong>المجموع:</strong><span id="cartTotal">0.00 ر.س</span></div>
-                    <button class="btn btn-accent full" id="completePurchase">إتمام الشراء</button>
-                  </div>
-                </div>
+            
+            <div class="qr-section">
+              <div id="qr" class="qr-box"></div>
+              <div class="qr-info">
+                <p>هذا الرمز يعبّر عن رقم دخولك (ID). استخدمه عند دخول المتجر.</p>
               </div>
             </div>
           </div>
@@ -98,18 +61,6 @@
       </div>
     </div>
   </main>
-
-  <footer class="footer">
-    <div class="wrap">
-      <div class="footer-content">
-        <div class="footer-brand">
-          <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDYiIGhlaWdodD0iNDYiIHZpZXdCb3g9IjAgMCA0NiA0NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ2IiBoZWlnaHQ9IjQ2IiByeD0iOCIgZmlsbD0idXJsKCNncmFkaWVudDApIi8+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9ImdyYWRpZW50MCIgeDE9IjAiIHkxPSIwIiB4Mj0iNDYiIHkyPSI0NiIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjZjk3MzE2Ii8+CjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzhjNWNmNiIvPgo8L2xpbmVhckdyYWRpZW50Pgo8L2RlZnM+Cjwvc3ZnPgo=" alt="Dukkan Vision">
-          <span>دكان فيجين</span>
-        </div>
-        <div>2025 - جميع الحقوق محفوظة.</div>
-      </div>
-    </div>
-  </footer>
 
   <!-- Database Integration -->
   <script type="module" src="../js/qr.js"></script>

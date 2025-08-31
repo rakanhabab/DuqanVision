@@ -45,9 +45,9 @@
 
                     <!-- Small QR Code -->
                     <div class="qr-small">
-                        <button class="btn btn-qr" onclick="window.location.href='qr.html'" title="اضغط لعرض QR Code">
+                        <a href="qr.html" class="btn btn-qr" title="اضغط لعرض QR Code">
                         <img src="../img/qr.png" alt="QR Code" style="width: 70px; height: 70px;">
-                    </button>
+                    </a>
                     </div>
 
                     <!-- Account Dropdown Menu -->
@@ -179,23 +179,40 @@
                             <div class="invoices-section" id="invoices">
                                 <div class="card">
                                     <h3>الفواتير</h3>
-                                    <div class="invoices-list" id="invoicesList">
-                                        <!-- Invoices will be loaded from database -->
+                                    
+                                    <!-- Recent Invoices Section -->
+                                    <div class="recent-invoices-section">
+                                        <h4>آخر 3 فواتير</h4>
+                                                                            <div class="recent-invoices-list" id="recentInvoicesList">
+                                        <!-- Recent invoices will be loaded here -->
                                     </div>
+                                </div>
                                     <div class="invoices-link">
                                         <a href="invoices-management.html">- إدارة فواتيري -</a>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Support Section -->
-                            <div class="contact-section" id="support">
+                            <!-- Contact Information Section -->
+                            <div class="contact-info-section" id="support">
                                 <div class="card">
-                                    <h3>الدعم</h3>
-                                    <div class="support-info">
-                                        <p>هل تحتاج مساعدة؟ يمكنك التواصل معنا عبر:</p>
-                                        <div class="support-links">
-                                            <a href="support.html" class="btn btn-gradient">صفحة الدعم</a>
+                                    <h3>يمكنك التواصل معنا عبر:</h3>
+                                    <div class="contact-cards">
+                                        <div class="contact-card">
+                                            <div class="contact-icon">📞</div>
+                                            <div class="contact-details">
+                                                <h4>الدعم الهاتفي</h4>
+                                                <p>اتصل بنا على: 0540231533</p>
+                                                <p>من الأحد إلى الخميس: 8 ص - 6 م</p>
+                                            </div>
+                                        </div>
+                                        <div class="contact-card">
+                                            <div class="contact-icon">📧</div>
+                                            <div class="contact-details">
+                                                <h4>البريد الإلكتروني</h4>
+                                                <p>support@dukkanvision.com</p>
+                                                <p>رد خلال 24 ساعة</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

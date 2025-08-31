@@ -74,7 +74,6 @@
                         <label for="searchInput">بحث (اسم/SKU)</label>
                         <input type="text" id="searchInput" placeholder="مثال: barni أو SKU003" class="filter-input">
                     </div>
-                    <button class="apply-btn" id="applyBtn">تطبيق</button>
                 </div>
             </div>
             <div class="inventory-table-section">
@@ -88,6 +87,7 @@
                             <th>السعر</th>
                             <th>الكمية</th>
                             <th>الحالة</th>
+                            <th>الإجراءات</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -99,6 +99,7 @@
                             <td>15.50 ر.س</td>
                             <td>45</td>
                             <td><span class="status-badge status-high"><span class="status-dot"></span>متوفر</span></td>
+                            <td><button class="edit-btn" onclick="editProduct('SKU-MILK-001')">تعديل</button></td>
                         </tr>
                         <tr>
                             <td>خبز أبيض</td>
@@ -108,6 +109,7 @@
                             <td>8.00 ر.س</td>
                             <td>12</td>
                             <td><span class="status-badge status-normal"><span class="status-dot"></span>متوفر</span></td>
+                            <td><button class="edit-btn" onclick="editProduct('SKU-BREAD-002')">تعديل</button></td>
                         </tr>
                         <tr>
                             <td>زيت زيتون</td>
@@ -117,6 +119,7 @@
                             <td>45.00 ر.س</td>
                             <td>3</td>
                             <td><span class="status-badge status-low"><span class="status-dot"></span>كمية قليلة</span></td>
+                            <td><button class="edit-btn" onclick="editProduct('SKU-OIL-003')">تعديل</button></td>
                         </tr>
                         <tr>
                             <td>أرز بسمتي</td>
@@ -126,6 +129,7 @@
                             <td>25.00 ر.س</td>
                             <td>0</td>
                             <td><span class="status-badge status-out"><span class="status-dot"></span>نفذ المخزون</span></td>
+                            <td><button class="edit-btn" onclick="editProduct('SKU-RICE-004')">تعديل</button></td>
                         </tr>
                         <tr>
                             <td>سكر أبيض</td>
@@ -135,6 +139,7 @@
                             <td>12.00 ر.س</td>
                             <td>28</td>
                             <td><span class="status-badge status-high"><span class="status-dot"></span>متوفر</span></td>
+                            <td><button class="edit-btn" onclick="editProduct('SKU-SUGAR-005')">تعديل</button></td>
                         </tr>
                         <tr>
                             <td>قهوة عربية</td>
@@ -144,6 +149,7 @@
                             <td>35.00 ر.س</td>
                             <td>15</td>
                             <td><span class="status-badge status-normal"><span class="status-dot"></span>متوفر</span></td>
+                            <td><button class="edit-btn" onclick="editProduct('SKU-COFFEE-006')">تعديل</button></td>
                         </tr>
                         <tr>
                             <td>شاي أخضر</td>
@@ -153,6 +159,7 @@
                             <td>18.00 ر.س</td>
                             <td>22</td>
                             <td><span class="status-badge status-high"><span class="status-dot"></span>متوفر</span></td>
+                            <td><button class="edit-btn" onclick="editProduct('SKU-TEA-007')">تعديل</button></td>
                         </tr>
                         <tr>
                             <td>عسل طبيعي</td>
@@ -162,6 +169,7 @@
                             <td>55.00 ر.س</td>
                             <td>8</td>
                             <td><span class="status-badge status-normal"><span class="status-dot"></span>متوفر</span></td>
+                            <td><button class="edit-btn" onclick="editProduct('SKU-HONEY-008')">تعديل</button></td>
                         </tr>
                         <tr>
                             <td>تمر سكري</td>
@@ -171,6 +179,7 @@
                             <td>42.00 ر.س</td>
                             <td>0</td>
                             <td><span class="status-badge status-out"><span class="status-dot"></span>نفذ المخزون</span></td>
+                            <td><button class="edit-btn" onclick="editProduct('SKU-DATES-009')">تعديل</button></td>
                         </tr>
                         <tr>
                             <td>لوز محمص</td>
@@ -180,6 +189,7 @@
                             <td>65.00 ر.س</td>
                             <td>5</td>
                             <td><span class="status-badge status-low"><span class="status-dot"></span>كمية قليلة</span></td>
+                            <td><button class="edit-btn" onclick="editProduct('SKU-ALMONDS-010')">تعديل</button></td>
                         </tr>
                         <tr>
                             <td>جوز هند</td>
@@ -189,6 +199,7 @@
                             <td>28.00 ر.س</td>
                             <td>18</td>
                             <td><span class="status-badge status-normal"><span class="status-dot"></span>متوفر</span></td>
+                            <td><button class="edit-btn" onclick="editProduct('SKU-COCONUT-011')">تعديل</button></td>
                         </tr>
                         <tr>
                             <td>فستق حلبي</td>
@@ -198,6 +209,7 @@
                             <td>75.00 ر.س</td>
                             <td>12</td>
                             <td><span class="status-badge status-normal"><span class="status-dot"></span>متوفر</span></td>
+                            <td><button class="edit-btn" onclick="editProduct('SKU-PISTACHIO-012')">تعديل</button></td>
                         </tr>
                         <tr>
                             <td>زعتر بري</td>
@@ -207,6 +219,7 @@
                             <td>32.00 ر.س</td>
                             <td>25</td>
                             <td><span class="status-badge status-high"><span class="status-dot"></span>متوفر</span></td>
+                            <td><button class="edit-btn" onclick="editProduct('SKU-THYME-013')">تعديل</button></td>
                         </tr>
                         <tr>
                             <td>كمون</td>
@@ -216,6 +229,7 @@
                             <td>15.00 ر.س</td>
                             <td>30</td>
                             <td><span class="status-badge status-high"><span class="status-dot"></span>متوفر</span></td>
+                            <td><button class="edit-btn" onclick="editProduct('SKU-CUMIN-014')">تعديل</button></td>
                         </tr>
                         <tr>
                             <td>كركم</td>
@@ -225,6 +239,7 @@
                             <td>20.00 ر.س</td>
                             <td>2</td>
                             <td><span class="status-badge status-low"><span class="status-dot"></span>كمية قليلة</span></td>
+                            <td><button class="edit-btn" onclick="editProduct('SKU-TURMERIC-015')">تعديل</button></td>
                         </tr>
                     </tbody>
                 </table>

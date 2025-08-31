@@ -115,20 +115,10 @@
                             <option value="pending">في الانتظار</option>
                             <option value="approved">تم القبول</option>
                             <option value="rejected">مرفوض</option>
-                            <option value="completed">مكتمل</option>
                         </select>
                     </div>
                     
-                    <div class="filter-group">
-                        <label>نوع التذكرة:</label>
-                        <select id="typeFilter" onchange="filterTickets()">
-                            <option value="all">جميع الأنواع</option>
-                            <option value="refund">استرداد مبلغ</option>
-                            <option value="invoice">مشكلة فاتورة</option>
-                            <option value="technical">مشكلة تقنية</option>
-                            <option value="general">استفسار عام</option>
-                        </select>
-                    </div>
+
                     
                     <div class="filter-group">
                         <label>المدة:</label>
@@ -146,7 +136,7 @@
                     <div class="table-header">
                         <h3>التذاكر</h3>
                         <div class="table-actions">
-                            <input type="text" placeholder="البحث في التذاكر أو رقم الفاتورة..." class="search-input" id="ticketsSearch" oninput="searchTickets()">
+                            <input type="text" placeholder="البحث برقم التذكرة أو رقم الفاتورة..." class="search-input" id="ticketsSearch" oninput="searchTickets()">
                         </div>
                     </div>
                     

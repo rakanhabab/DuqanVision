@@ -273,61 +273,78 @@ async function loadInvoicesFromDatabase() {
     try {
         if (!currentUser) return;
 
-        // Get invoices for current user with branch information
+        // Get invoices for current user
         const { data: invoices, error } = await db.supabase
             .from('invoices')
-            .select(`
-                *,
-                branches!inner(name, address, lat, long)
-            `)
+            .select('*')
             .eq('user_id', currentUser.id)
             .order('timestamp', { ascending: false })
-            .limit(5); // Limit to latest 5 invoices
+            .limit(10); // Get more invoices for recent section
 
         if (error) {
             console.error('Error loading invoices:', error);
             return;
         }
 
-        displayInvoices(invoices || []);
-
+        // Display recent invoices (last 3)
+        const recentInvoices = invoices ? invoices.slice(0, 3) : [];
+        displayRecentInvoices(recentInvoices);
         
     } catch (error) {
         console.error('Error loading invoices:', error);
     }
 }
 
-// Display invoices for user.html page
-function displayInvoices(invoices) {
-    const invoicesList = document.getElementById('invoicesList');
-    if (!invoicesList) return;
+// Display recent invoices (last 3) for user.html page
+function displayRecentInvoices(invoices) {
+    const recentInvoicesList = document.getElementById('recentInvoicesList');
+    if (!recentInvoicesList) return;
     
     if (invoices.length === 0) {
-        invoicesList.innerHTML = `
+        recentInvoicesList.innerHTML = `
             <div style="text-align: center; padding: 20px; color: #6c757d;">
                 <div style="font-size: 24px; margin-bottom: 10px;">📄</div>
-                <div>لا توجد فواتير حتى الآن</div>
-                <div style="font-size: 12px; margin-top: 5px;">ستظهر فواتيرك هنا بعد الشراء</div>
+                <div>لا توجد فواتير حديثة</div>
+                <div style="font-size: 12px; margin-top: 5px;">ستظهر آخر فواتيرك هنا</div>
             </div>
         `;
         return;
     }
     
-    // Show only the latest 3 invoices
-    const recentInvoices = invoices.slice(0, 3);
-    
-    invoicesList.innerHTML = recentInvoices.map(invoice => `
-        <div class="invoice-item" style="animation: fadeInUp 0.5s ease-out;">
-            <div class="invoice-info">
-                <div class="invoice-id">#${invoice.id.slice(0, 8)}</div>
-                <div class="invoice-date">${db.formatDate(invoice.timestamp)}</div>
-                ${invoice.branches ? `<div class="invoice-branch" style="font-size: 12px; color: #8b5cf6;">${invoice.branches.name}</div>` : ''}
+    recentInvoicesList.innerHTML = invoices.map(invoice => `
+        <div class="recent-invoice-item" style="animation: fadeInUp 0.5s ease-out;">
+            <div class="recent-invoice-info">
+                <div class="recent-invoice-id">#${invoice.id.slice(0, 8)}</div>
+                <div class="recent-invoice-date">${db.formatDate(invoice.timestamp)}</div>
             </div>
-            <div class="invoice-amount">${db.formatCurrency(invoice.total_amount)}</div>
-            <button class="btn btn-purple btn-sm" onclick="window.location.href='invoice-view.html?id=${invoice.id}'">استعراض</button>
+            <div class="recent-invoice-amount">${db.formatCurrency(invoice.total_amount)}</div>
+            <div class="recent-invoice-actions">
+                <a href="invoice-view.html?id=${invoice.id}" class="recent-invoice-btn view">عرض</a>
+                <button class="recent-invoice-btn print" onclick="printInvoice('${invoice.id}')">طباعة</button>
+                <button class="recent-invoice-btn complaint" onclick="fileComplaint('${invoice.id}')">شكوى</button>
+            </div>
         </div>
     `).join('');
 }
+
+// Print invoice function
+function printInvoice(invoiceId) {
+    // Open invoice in new window for printing
+    const printWindow = window.open(`invoice-view.html?id=${invoiceId}&print=true`, '_blank');
+    if (printWindow) {
+        printWindow.onload = function() {
+            printWindow.print();
+        };
+    }
+}
+
+// File complaint function
+function fileComplaint(invoiceId) {
+    // Redirect to complaint page with invoice ID
+    window.location.href = `complaint.html?id=${invoiceId}`;
+}
+
+
 
 
 
@@ -1621,3 +1638,5 @@ window.showAccountInfo = showAccountInfo;
 window.closeModal = closeModal;
 window.logoutUser = logoutUser;
 window.scrollToSection = scrollToSection;
+window.printInvoice = printInvoice;
+window.fileComplaint = fileComplaint;

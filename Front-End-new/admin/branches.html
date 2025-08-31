@@ -64,106 +64,16 @@
             
             <!-- Branches Cards Section -->
             <div class="branches-cards-section">
-                <div class="branch-cards-grid">
-                    <!-- Branch 1 -->
-                    <div class="branch-card">
-                        <div class="branch-header">
-                            <h3>العليا</h3>
-                        </div>
-                        <div class="branch-content">
-                            <div class="branch-location">
-                                <span class="location-icon"></span>
-                                <span>طريق الملك فهد — حي العليا</span>
-                            </div>
-                            <div class="branch-hours">
-                                <div class="hours-row">
-                                    <span class="days">السبت-الخميس:</span>
-                                    <span class="time">08:00-23:00</span>
-                                </div>
-                                <div class="hours-row">
-                                    <span class="days">الجمعة:</span>
-                                    <span class="time">16:00-23:00</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Branch 2 -->
-                    <div class="branch-card">
-                        <div class="branch-header">
-                            <h3>النرجس</h3>
-                        </div>
-                        <div class="branch-content">
-                            <div class="branch-location">
-                                <span>طريق عثمان بن عفان — حي النرجس</span>
-                            </div>
-                            <div class="branch-hours">
-                                <div class="hours-row">
-                                    <span class="days">السبت-الخميس:</span>
-                                    <span class="time">08:00-23:00</span>
-                                </div>
-                                <div class="hours-row">
-                                    <span class="days">الجمعة:</span>
-                                    <span class="time">16:00-23:00</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Branch 3 -->
-                    <div class="branch-card">
-                        <div class="branch-header">
-                            <h3>الياسمين</h3>
-                        </div>
-                        <div class="branch-content">
-                            <div class="branch-location">
-                                <span>طريق أنس بن مالك — حي الياسمين</span>
-                            </div>
-                            <div class="branch-hours">
-                                <div class="hours-row">
-                                    <span class="days">السبت-الخميس:</span>
-                                    <span class="time">08:00-23:00</span>
-                                </div>
-                                <div class="hours-row">
-                                    <span class="days">الجمعة:</span>
-                                    <span class="time">16:00-23:00</span>
-                                </div>
-                            </div>
-                        </div>
+                <div class="branch-cards-grid" id="branchesGrid">
+                    <!-- Branches will be loaded dynamically from database -->
+                    <div class="loading-branches">
+                        <div class="loading-spinner"></div>
+                        <p>جاري تحميل الفروع...</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Map Section -->
-            <div class="map-section">
-                <h3>خريطة الرياض</h3>
-                <div class="map-container">
-                    <iframe 
-                        src="https://maps.google.com/maps?q=Riyadh,Saudi%20Arabia&t=&z=11&ie=UTF8&iwloc=&output=embed"
-                        width="100%" 
-                        height="450" 
-                        style="border:0;" 
-                        allowfullscreen="" 
-                        loading="lazy" 
-                        referrerpolicy="no-referrer-when-downgrade">
-                    </iframe>
-                    <!-- Map Pins Overlay -->
-                    <div class="map-pins">
-                        <div class="map-pin pin-olaya" data-branch="العليا">
-                            <div class="pin-icon">📍</div>
-                            <div class="pin-label">العليا</div>
-                        </div>
-                        <div class="map-pin pin-narjis" data-branch="النرجس">
-                            <div class="pin-icon">📍</div>
-                            <div class="pin-label">النرجس</div>
-                        </div>
-                        <div class="map-pin pin-yasmeen" data-branch="الياسمين">
-                            <div class="pin-icon">📍</div>
-                            <div class="pin-label">الياسمين</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
         </main>
     </div>
 

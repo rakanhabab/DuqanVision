@@ -37,8 +37,8 @@
 }
 
 .branch-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
+  color: #2d3748;
   padding: 16px 20px; /* تصغير التباعد */
   display: flex;
   justify-content: space-between;
@@ -50,12 +50,14 @@
   font-size: 1.1rem; /* تصغير حجم العنوان */
   font-weight: 700;
   font-family: 'Cairo', sans-serif;
+  color: #2d3748;
+  text-shadow: none;
 }
 
 .edit-btn {
-  background: rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, #f7a870 0%, #b892e0 100%);
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: none;
   padding: 6px 12px; /* تصغير التباعد */
   border-radius: 16px; /* تصغير نصف القطر */
   font-size: 0.8rem; /* تصغير حجم الخط */
@@ -66,8 +68,29 @@
 }
 
 .edit-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, #f5a06a 0%, #b08ad8 100%);
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(247, 168, 112, 0.3);
+}
+
+/* Edit Branch Button Styles */
+.edit-branch-btn {
+  background: linear-gradient(135deg, #f7a870 0%, #ed8936 100%);
+  color: white;
+  border: none;
+  padding: 6px 12px; /* تصغير التباعد */
+  border-radius: 16px; /* تصغير نصف القطر */
+  font-size: 0.8rem; /* تصغير حجم الخط */
+  font-weight: 600;
+  font-family: 'Cairo', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.edit-branch-btn:hover {
+  background: linear-gradient(135deg, #f5a06a 0%, #dd6b20 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(247, 168, 112, 0.3);
 }
 
 .branch-content {
@@ -120,6 +143,46 @@
   background: rgba(56, 161, 105, 0.1);
   padding: 4px 8px;
   border-radius: 6px;
+}
+
+/* Branch Actions */
+.branch-actions {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.google-maps-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  color: #4a5568;
+  border: 1px solid #cbd5e0;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: 'Cairo', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.google-maps-btn:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #a0aec0;
+}
+
+.google-maps-btn:active {
+  transform: translateY(0);
+}
+
+.maps-icon {
+  font-size: 1.1rem;
 }
 
 /* Map Section */
@@ -325,13 +388,13 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #c4b5fd 0%, #fdba74 100%);
   color: white;
 }
 
 .btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(196, 181, 253, 0.3);
 }
 
 .btn-outline {
@@ -442,4 +505,69 @@
   60% {
     transform: translateY(-5px);
   }
+}
+
+/* Loading and empty states */
+.loading-branches {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: #6b7280;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e5e7eb;
+  border-top: 4px solid #8b5cf6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.no-branches {
+  text-align: center;
+  padding: 40px;
+  color: #6b7280;
+}
+
+.no-branches p {
+  font-size: 16px;
+  margin: 0;
+}
+
+/* Branch coordinates */
+.branch-coordinates {
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: #f3f4f6;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.coord-label {
+  color: #6b7280;
+  font-weight: 500;
+  margin-left: 8px;
+}
+
+.coord-value {
+  color: #111827;
+  font-family: monospace;
+  background: #e5e7eb;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Location icon */
+.location-icon {
+  margin-left: 8px;
+  font-size: 16px;
 }

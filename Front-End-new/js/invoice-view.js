@@ -40,61 +40,205 @@ async function updateInvoiceDetails(invoiceId) {
         // Get invoice from database
         const { data: invoice, error } = await db.supabase
             .from('invoices')
-            .select(`
-                *,
-                branches!inner(name, address),
-                products!inner(name, price)
-            `)
+            .select('*')
             .eq('id', invoiceId)
             .eq('user_id', currentUser.id)
             .single();
         
-        if (error || !invoice) {
-            console.error('Invoice not found:', invoiceId, error);
-            showError('الفواتير غير موجودة');
+        if (error) {
+            console.error('Database error:', error);
+            showError(`خطأ في قاعدة البيانات: ${error.message}`);
+            return;
+        }
+        
+        if (!invoice) {
+            console.error('Invoice not found:', invoiceId);
+            showError('الفاتورة غير موجودة');
             return;
         }
         
         console.log('Found invoice:', invoice);
+        console.log('Products and quantities:', invoice.products_and_quantities);
+        
+        // Get product prices from database
+        const { data: products, error: productsError } = await db.supabase
+            .from('products')
+            .select('name, price');
+        
+        if (productsError) {
+            console.error('Error loading products:', productsError);
+        } else {
+            console.log('Loaded products with prices:', products);
+        }
+        
+        // Create a map of product names to prices
+        const productPrices = {};
+        if (products) {
+            products.forEach(product => {
+                productPrices[product.name.toLowerCase()] = parseFloat(product.price) || 0;
+            });
+        }
+        console.log('Product prices map:', productPrices);
         
         // Update invoice header
         document.getElementById('invoice-id').textContent = `#${invoice.id}`;
         document.getElementById('invoice-date').textContent = db.formatDate(invoice.timestamp);
-        document.getElementById('invoice-branch').textContent = invoice.branches?.name || 'غير محدد';
+        
+        // Get branch name based on branch_id
+        let branchName = 'غير محدد';
+        if (invoice.branch_id) {
+            switch (invoice.branch_id) {
+                case '9852c8e7-0be0-4f5c-aa8d-68e289fe9552':
+                    branchName = 'فرع العليا';
+                    break;
+                case 'af73abd0-04f7-44bb-b0d6-396a58cbd33a':
+                    branchName = 'فرع الياسمين';
+                    break;
+                case '130df862-b9e2-4233-8d67-d87a3d3b8323':
+                    branchName = 'فرع الملقا';
+                    break;
+            }
+        }
+        document.getElementById('invoice-branch').textContent = branchName;
         
         // Parse items from JSONB
-        const items = invoice.items || [];
+        let items = invoice.products_and_quantities || [];
+        
+        // Ensure items is an array
+        if (!Array.isArray(items)) {
+            console.warn('Products and quantities is not an array:', items);
+            items = [];
+        }
         
         // Update invoice items
         const itemsContainer = document.getElementById('invoice-items-list');
         if (itemsContainer) {
             itemsContainer.innerHTML = '';
             
-            if (items.length === 0) {
+            if (!items || items.length === 0) {
                 itemsContainer.innerHTML = `
                     <div style="text-align: center; padding: 20px; color: #6c757d;">
                         لا توجد منتجات في هذه الفاتورة
                     </div>
                 `;
+                // Set totals to zero when no items
+                document.getElementById('subtotal').textContent = db.formatCurrency(0);
+                document.getElementById('tax').textContent = db.formatCurrency(0);
+                document.getElementById('total').textContent = db.formatCurrency(0);
             } else {
-                items.forEach(item => {
+                // Check if we have any valid items
+                const validItems = items.filter(item => item && typeof item === 'object');
+                if (validItems.length === 0) {
+                    itemsContainer.innerHTML = `
+                        <div style="text-align: center; padding: 20px; color: #6c757d;">
+                            لا توجد منتجات صحيحة في هذه الفاتورة
+                        </div>
+                    `;
+                    // Set totals to zero when no valid items
+                    document.getElementById('subtotal').textContent = db.formatCurrency(0);
+                    document.getElementById('tax').textContent = db.formatCurrency(0);
+                    document.getElementById('total').textContent = db.formatCurrency(0);
+                } else {
+                items.forEach((item, index) => {
+                    // Skip invalid items
+                    if (!item || typeof item !== 'object') {
+                        console.warn('Invalid item at index', index, ':', item);
+                        return;
+                    }
+                    
                     const itemElement = document.createElement('div');
                     itemElement.className = 'invoice-item';
+                    const quantity = parseInt(item.quantity) || 1;
+                    
+                    // Get price from database first, then fallback to hardcoded prices
+                    let price = parseFloat(item.price) || 0;
+                    if (price === 0) {
+                        const productName = (item.name || '').toLowerCase();
+                        
+                        // Try to get price from database first
+                        if (productPrices[productName]) {
+                            price = productPrices[productName];
+                            console.log(`Found price in database for ${productName}: ${price}`);
+                        } else {
+                            // Fallback to hardcoded prices if not found in database
+                            if (productName.includes('loacker')) {
+                                price = 5.00; // 5 ريال للحبة
+                            } else if (productName.includes('almarai') || productName.includes('juice')) {
+                                price = 8.50; // 8.50 ريال للحبة
+                            } else if (productName.includes('water')) {
+                                price = 2.00; // 2 ريال للحبة
+                            } else if (productName.includes('chips') || productName.includes('snack')) {
+                                price = 12.00; // 12 ريال للحبة
+                            } else if (productName.includes('chocolate') || productName.includes('candy')) {
+                                price = 5.00; // 5 ريال للحبة
+                            } else if (productName.includes('bread') || productName.includes('toast')) {
+                                price = 6.00; // 6 ريال للحبة
+                            } else if (productName.includes('milk') || productName.includes('dairy')) {
+                                price = 7.00; // 7 ريال للحبة
+                            } else {
+                                price = 10.00; // 10 ريال للحبة (سعر افتراضي)
+                            }
+                            console.log(`Using fallback price for ${productName}: ${price}`);
+                        }
+                    }
+                    
+                    const total = quantity * price;
+                    
+                    console.log('Processing item:', { item, quantity, price, total });
+                    
                     itemElement.innerHTML = `
                         <div class="item-product">${item.name || 'منتج غير محدد'}</div>
-                        <div class="item-quantity">${item.quantity || 1}</div>
-                        <div class="item-price">${db.formatCurrency(item.price || 0)}</div>
-                        <div class="item-total">${db.formatCurrency((item.price || 0) * (item.quantity || 1))}</div>
+                        <div class="item-quantity">${quantity}</div>
+                        <div class="item-price">${db.formatCurrency(price)}</div>
+                        <div class="item-total">${db.formatCurrency(total)}</div>
                     `;
                     itemsContainer.appendChild(itemElement);
                 });
+                }
             }
         }
         
-        // Calculate totals
-        const subtotal = items.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 1)), 0);
+        // Calculate totals only if we have valid items
+        const validItems = items.filter(item => item && typeof item === 'object');
+        const subtotal = validItems.reduce((sum, item) => {
+            const quantity = parseInt(item.quantity) || 1;
+            
+            // Use same price logic as above (price per unit)
+            let price = parseFloat(item.price) || 0;
+            if (price === 0) {
+                const productName = (item.name || '').toLowerCase();
+                
+                // Try to get price from database first
+                if (productPrices[productName]) {
+                    price = productPrices[productName];
+                } else {
+                    // Fallback to hardcoded prices if not found in database
+                    if (productName.includes('loacker')) {
+                        price = 5.00; // 5 ريال للحبة
+                    } else if (productName.includes('almarai') || productName.includes('juice')) {
+                        price = 8.50; // 8.50 ريال للحبة
+                    } else if (productName.includes('water')) {
+                        price = 2.00; // 2 ريال للحبة
+                    } else if (productName.includes('chips') || productName.includes('snack')) {
+                        price = 12.00; // 12 ريال للحبة
+                    } else if (productName.includes('chocolate') || productName.includes('candy')) {
+                        price = 5.00; // 5 ريال للحبة
+                    } else if (productName.includes('bread') || productName.includes('toast')) {
+                        price = 6.00; // 6 ريال للحبة
+                    } else if (productName.includes('milk') || productName.includes('dairy')) {
+                        price = 7.00; // 7 ريال للحبة
+                    } else {
+                        price = 10.00; // 10 ريال للحبة (سعر افتراضي)
+                    }
+                }
+            }
+            
+            return sum + (quantity * price);
+        }, 0);
         const tax = subtotal * 0.15; // 15% VAT
         const total = subtotal + tax;
+        
+        console.log('Calculated totals:', { subtotal, tax, total, validItems, totalItems: items.length });
         
         // Update summary
         document.getElementById('subtotal').textContent = db.formatCurrency(subtotal);
@@ -121,7 +265,7 @@ async function showDefaultInvoice() {
             .from('invoices')
             .select('id')
             .eq('user_id', currentUser.id)
-            .order('created_at', { ascending: false })
+            .order('timestamp', { ascending: false })
             .limit(1);
         
         if (error || !invoices || invoices.length === 0) {

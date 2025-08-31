@@ -19,9 +19,22 @@ function getProductEmoji(category) {
 // QR/Barcode standalone logic
 
 async function ensureAuth() {
-  const currentUser = localStorage.getItem('twq_current');
+  const currentUser = localStorage.getItem('current_user');
   if (!currentUser) {
     window.location.href = 'index.html';
+    return;
+  }
+  
+  try {
+    const user = JSON.parse(currentUser);
+    if (!user || !user.id) {
+      window.location.href = 'index.html';
+      return;
+    }
+  } catch (error) {
+    console.error('Error parsing user data:', error);
+    window.location.href = 'index.html';
+    return;
   }
 }
 
@@ -37,6 +50,19 @@ function showUserQR(userId) {
     colorLight: '#FFFFFF',
     correctLevel: QRCode.CorrectLevel.M
   });
+}
+
+function getCurrentUserId() {
+  try {
+    const currentUser = localStorage.getItem('current_user');
+    if (currentUser) {
+      const user = JSON.parse(currentUser);
+      return user.id;
+    }
+  } catch (error) {
+    console.error('Error getting user ID:', error);
+  }
+  return '12345'; // Fallback
 }
 
 async function simulateProductDetection() {
@@ -211,11 +237,12 @@ function navigateToBarcode() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  ensureAuth();
+document.addEventListener('DOMContentLoaded', async () => {
+  await ensureAuth();
 
-  // Generate user QR on load
-  showUserQR('12345');
+  // Generate user QR on load with actual user ID
+  const userId = getCurrentUserId();
+  showUserQR(userId);
 
   // Buttons
   const simulateBtn = document.getElementById('simulateScan');

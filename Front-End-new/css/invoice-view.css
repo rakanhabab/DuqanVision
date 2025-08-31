@@ -41,22 +41,7 @@
   gap: 12px;
 }
 
-/* Back button */
-.btn-back {
-  background: linear-gradient(135deg, #c4b5fd 0%, #fdba74 100%);
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
 
-.btn-back:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(196, 181, 253, 0.3);
-}
 
 /* Body and main layout */
 body {

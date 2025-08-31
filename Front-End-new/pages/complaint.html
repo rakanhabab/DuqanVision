@@ -39,25 +39,23 @@
             </div>
           </div>
           
+          <div class="products-section">
+            <div class="section-header">
+              <h3>منتجات الفاتورة</h3>
+              <button type="button" class="btn btn-add-products" onclick="showAllProductsModal()">
+                <span class="icon">+</span>
+                جميع المنتجات
+              </button>
+            </div>
+            <p class="section-description">قم بتحديد الكمية المراد مراجعتها في الفاتورة</p>
+            <p class="section-description red-text">( الفرق عن الكمية الاصلية فقط )</p>
+            
+            <div class="products-list" id="productsList">
+              <!-- Products will be loaded here dynamically -->
+            </div>
+          </div>
+          
           <form id="complaintForm" class="complaint-form">
-            <div class="form-group">
-              <label for="complaintType">نوع الشكوى *</label>
-              <select id="complaintType" name="complaintType" required>
-                <option value="">اختر نوع الشكوى</option>
-                <option value="billing_error">خطأ في الفاتورة</option>
-                <option value="wrong_items">منتجات خاطئة</option>
-                <option value="missing_items">منتجات مفقودة</option>
-                <option value="damaged_items">منتجات تالفة</option>
-                <option value="service_issue">مشكلة في الخدمة</option>
-                <option value="other">أخرى</option>
-              </select>
-            </div>
-            
-            <div class="form-group">
-              <label for="description">شرح الشكوى *</label>
-              <textarea id="description" name="description" rows="6" placeholder="اكتب ملاحظتك بالتفصيل..." required></textarea>
-            </div>
-            
             <div class="form-actions">
               <button type="submit" class="btn btn-submit">إرسال الشكوى</button>
               <button type="button" class="btn btn-clear" onclick="clearForm()">إلغاء</button>
@@ -67,6 +65,27 @@
       </div>
     </div>
   </main>
+
+  <!-- All Products Modal -->
+  <div id="allProductsModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>جميع المنتجات المتاحة</h3>
+        <button type="button" class="close-btn" onclick="closeAllProductsModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="search-section">
+          <input type="text" id="productSearch" placeholder="البحث في المنتجات..." class="search-input">
+        </div>
+        <div class="all-products-list" id="allProductsList">
+          <!-- All products will be loaded here -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-cancel" onclick="closeAllProductsModal()">إغلاق</button>
+      </div>
+    </div>
+  </div>
 
   <script src="../js/complaint.js"></script>
 </body>

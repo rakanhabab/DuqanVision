@@ -3,42 +3,89 @@ import { db } from './database.js';
 class AccountService {
     constructor() {
         this.form = document.getElementById('accountForm');
+        this.paymentForm = document.getElementById('paymentForm');
         this.saveBtn = document.getElementById('saveBtn');
         this.cancelBtn = document.getElementById('cancelBtn');
         this.applyBtn = document.getElementById('applyBtn');
+        this.savePaymentBtn = document.getElementById('savePaymentBtn');
+        this.cancelPaymentBtn = document.getElementById('cancelPaymentBtn');
+        this.applyPaymentBtn = document.getElementById('applyPaymentBtn');
         this.inputs = Array.from(this.form.querySelectorAll('input'));
+        this.paymentInputs = Array.from(this.paymentForm.querySelectorAll('input, select'));
         this.userData = null;
+        this.paymentData = null;
         this.isEditing = false;
+        this.isPaymentEditing = false;
         
         this.init();
     }
 
     async init() {
         await this.loadUserData();
+        await this.loadPaymentData();
         this.setupEventListeners();
+        this.setupPaymentEventListeners();
         this.setEditing(false);
+        this.setPaymentEditing(false);
     }
 
     async loadUserData() {
         try {
+            // Get current user from localStorage first
+            const currentUserStr = localStorage.getItem('current_user');
+            if (!currentUserStr) {
+                this.showNotification('يرجى تسجيل الدخول أولاً', 'error');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const currentUser = JSON.parse(currentUserStr);
+            
+            // Set user ID in database service
+            db.setCurrentUser(currentUser.id);
+            
+            // Get user data from database
             this.userData = await db.getCurrentUser();
             
             if (!this.userData) {
-                // If user doesn't exist, create a default user
-                this.userData = await db.createUser({
-                    first_name: '',
-                    last_name: '',
-                    email: '',
-                    phone: '',
-                    city: '',
-                    birthdate: null
-                });
+                // If user doesn't exist in database, use localStorage data
+                this.userData = {
+                    id: currentUser.id,
+                    first_name: currentUser.first_name || '',
+                    last_name: currentUser.last_name || '',
+                    email: currentUser.email || '',
+                    phone: currentUser.phone || '',
+                    city: currentUser.city || '',
+                    birthdate: currentUser.birthdate || null
+                };
             }
 
             this.populateForm();
         } catch (error) {
             console.error('Error loading user data:', error);
             this.showNotification('خطأ في تحميل بيانات المستخدم', 'error');
+        }
+    }
+
+    async loadPaymentData() {
+        try {
+            // Get payment data from localStorage
+            const paymentDataStr = localStorage.getItem('payment_data');
+            if (paymentDataStr) {
+                this.paymentData = JSON.parse(paymentDataStr);
+            } else {
+                // Initialize empty payment data
+                this.paymentData = {
+                    cardHolderName: '',
+                    cardNumber: '',
+                    expiryDate: '',
+                    cvv: ''
+                };
+            }
+            this.populatePaymentForm();
+        } catch (error) {
+            console.error('Error loading payment data:', error);
+            this.showNotification('خطأ في تحميل بيانات الدفع', 'error');
         }
     }
 
@@ -56,8 +103,27 @@ class AccountService {
 
         for (const [formField, dbField] of Object.entries(fieldMappings)) {
             const element = document.getElementById(formField);
-            if (element && this.userData[dbField]) {
-                element.value = this.userData[dbField];
+            if (element) {
+                // Set value even if it's empty to clear any previous data
+                element.value = this.userData[dbField] || '';
+            }
+        }
+    }
+
+    populatePaymentForm() {
+        if (!this.paymentData) return;
+
+        const fieldMappings = {
+            'cardHolderName': 'cardHolderName',
+            'cardNumber': 'cardNumber',
+            'expiryDate': 'expiryDate',
+            'cvv': 'cvv'
+        };
+
+        for (const [formField, dataField] of Object.entries(fieldMappings)) {
+            const element = document.getElementById(formField);
+            if (element) {
+                element.value = this.paymentData[dataField] || '';
             }
         }
     }
@@ -78,6 +144,52 @@ class AccountService {
             e.preventDefault();
             this.saveUserData();
         });
+    }
+
+    setupPaymentEventListeners() {
+        if (this.applyPaymentBtn) {
+            this.applyPaymentBtn.addEventListener('click', () => this.setPaymentEditing(true));
+        }
+
+        this.cancelPaymentBtn.addEventListener('click', () => {
+            this.populatePaymentForm();
+            this.setPaymentEditing(false);
+            this.showNotification('تم إلغاء تغييرات الدفع', 'info');
+        });
+
+        this.paymentForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.savePaymentData();
+        });
+
+        // Card number formatting
+        const cardNumberInput = document.getElementById('cardNumber');
+        if (cardNumberInput) {
+            cardNumberInput.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\s/g, '').replace(/\D/g, '');
+                value = value.replace(/(\d{4})/g, '$1 ').trim();
+                e.target.value = value;
+            });
+        }
+
+        // Expiry year formatting
+        const expiryInput = document.getElementById('expiryDate');
+        if (expiryInput) {
+            expiryInput.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, '');
+                // Limit to 4 digits
+                value = value.substring(0, 4);
+                e.target.value = value;
+            });
+        }
+
+        // CVV validation
+        const cvvInput = document.getElementById('cvv');
+        if (cvvInput) {
+            cvvInput.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/\D/g, '');
+            });
+        }
     }
 
     setEditing(editing) {
@@ -102,6 +214,28 @@ class AccountService {
         }
     }
 
+    setPaymentEditing(editing) {
+        this.isPaymentEditing = editing;
+        this.paymentInputs.forEach(input => {
+            input.disabled = !editing;
+        });
+        
+        this.savePaymentBtn.disabled = !editing;
+        this.cancelPaymentBtn.disabled = !editing;
+        
+        if (this.applyPaymentBtn) {
+            this.applyPaymentBtn.disabled = editing;
+        }
+
+        // إضافة تأثيرات بصرية
+        if (editing) {
+            this.paymentForm.classList.add('editing');
+            this.showNotification('يمكنك الآن تعديل بيانات الدفع', 'info');
+        } else {
+            this.paymentForm.classList.remove('editing');
+        }
+    }
+
     clearPasswordFields() {
         document.getElementById('password').value = '';
         document.getElementById('confirmPassword').value = '';
@@ -118,6 +252,42 @@ class AccountService {
 
         if (password && password.length < 6) {
             this.showNotification('كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'error');
+            return false;
+        }
+
+        return true;
+    }
+
+    validatePaymentData() {
+        const cardHolderName = document.getElementById('cardHolderName').value.trim();
+        const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+        const expiryDate = document.getElementById('expiryDate').value;
+        const cvv = document.getElementById('cvv').value;
+
+        if (!cardHolderName) {
+            this.showNotification('يرجى إدخال اسم حامل البطاقة', 'error');
+            return false;
+        }
+
+        if (cardNumber.length < 13 || cardNumber.length > 19) {
+            this.showNotification('رقم البطاقة غير صحيح', 'error');
+            return false;
+        }
+
+        if (!expiryDate || !/^\d{4}$/.test(expiryDate)) {
+            this.showNotification('سنة انتهاء الصلاحية غير صحيحة', 'error');
+            return false;
+        }
+
+        const currentYear = new Date().getFullYear();
+        const expiryYear = parseInt(expiryDate);
+        if (expiryYear < currentYear) {
+            this.showNotification('سنة انتهاء الصلاحية يجب أن تكون في المستقبل', 'error');
+            return false;
+        }
+
+        if (cvv.length < 3 || cvv.length > 4) {
+            this.showNotification('رمز الأمان غير صحيح', 'error');
             return false;
         }
 
@@ -166,6 +336,15 @@ class AccountService {
             
             if (updatedUser) {
                 this.userData = updatedUser;
+                
+                // Update localStorage with new user data
+                const currentUserStr = localStorage.getItem('current_user');
+                if (currentUserStr) {
+                    const currentUser = JSON.parse(currentUserStr);
+                    const updatedLocalUser = { ...currentUser, ...userData };
+                    localStorage.setItem('current_user', JSON.stringify(updatedLocalUser));
+                }
+                
                 this.showNotification('تم حفظ البيانات بنجاح', 'success');
                 this.clearPasswordFields();
                 this.setEditing(false);
@@ -179,6 +358,39 @@ class AccountService {
             // إعادة تفعيل الزر
             this.saveBtn.disabled = false;
             this.saveBtn.textContent = 'حفظ التغييرات';
+        }
+    }
+
+    async savePaymentData() {
+        if (!this.validatePaymentData()) {
+            return;
+        }
+
+        // إظهار حالة التحميل
+        this.savePaymentBtn.disabled = true;
+        this.savePaymentBtn.textContent = 'جاري الحفظ...';
+
+        try {
+            const paymentData = {
+                cardHolderName: document.getElementById('cardHolderName').value.trim(),
+                cardNumber: document.getElementById('cardNumber').value.replace(/\s/g, ''),
+                expiryDate: document.getElementById('expiryDate').value,
+                cvv: document.getElementById('cvv').value
+            };
+
+            // Save to localStorage (in real app, this would be encrypted and sent to server)
+            localStorage.setItem('payment_data', JSON.stringify(paymentData));
+            this.paymentData = paymentData;
+
+            this.showNotification('تم حفظ بيانات الدفع بنجاح', 'success');
+            this.setPaymentEditing(false);
+        } catch (error) {
+            console.error('Error saving payment data:', error);
+            this.showNotification('خطأ في حفظ بيانات الدفع', 'error');
+        } finally {
+            // إعادة تفعيل الزر
+            this.savePaymentBtn.disabled = false;
+            this.savePaymentBtn.textContent = 'حفظ معلومات الدفع';
         }
     }
 

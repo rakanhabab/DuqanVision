@@ -66,13 +66,13 @@ p {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #c4b5fd 0%, #fdba74 100%);
   color: white;
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 8px 24px rgba(196, 181, 253, 0.3);
 }
 
 .btn-accent {
@@ -83,6 +83,30 @@ p {
 .btn-accent:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(249, 115, 22, 0.3);
+}
+
+/* Unified Back Button Style */
+.btn-back {
+  background: linear-gradient(135deg, #c4b5fd 0%, #fdba74 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+  line-height: 1;
+}
+
+.btn-back:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(196, 181, 253, 0.3);
+  text-decoration: none;
+  color: white;
 }
 
 /* Cards */

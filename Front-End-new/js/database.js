@@ -106,16 +106,25 @@ class DatabaseService {
 
     // ===== BRANCHES =====
     async getBranches() {
-        const { data, error } = await this.supabase
-            .from('branches')
-            .select('*')
-            .order('name')
-        
-        if (error) {
-            console.error('Error fetching branches:', error)
+        try {
+            console.log('🔍 Fetching branches from database...')
+            const { data, error } = await this.supabase
+                .from('branches')
+                .select('*')
+                .order('name')
+            
+            if (error) {
+                console.error('❌ Error fetching branches:', error)
+                return []
+            }
+            
+            console.log('✅ Branches fetched successfully:', data?.length || 0, 'branches')
+            console.log('📋 Branches data:', data)
+            return data || []
+        } catch (error) {
+            console.error('❌ Exception in getBranches:', error)
             return []
         }
-        return data
     }
 
     // ===== INVENTORY (quantities per product) =====

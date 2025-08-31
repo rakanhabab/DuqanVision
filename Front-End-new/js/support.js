@@ -21,7 +21,6 @@ function handleFormSubmit(event) {
     // Get form data
     const formData = new FormData(event.target);
     const supportData = {
-        name: formData.get('name'),
         email: formData.get('email'),
         phone: formData.get('phone'),
         subject: formData.get('subject'),
@@ -47,11 +46,6 @@ function handleFormSubmit(event) {
 
 // Validate form data
 function validateForm(data) {
-    if (!data.name || data.name.trim().length < 2) {
-        showMessage('يرجى إدخال اسم صحيح (حرفين على الأقل)', 'error');
-        return false;
-    }
-    
     if (!data.email || !isValidEmail(data.email)) {
         showMessage('يرجى إدخال بريد إلكتروني صحيح', 'error');
         return false;

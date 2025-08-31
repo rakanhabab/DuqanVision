@@ -30,3 +30,77 @@ body { direction: rtl; }
 @media (max-width: 992px) { .account-layout { grid-template-columns: 1fr; } .main-card { width: 100%; } }
 @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
 
+/* Payment Card Styles */
+.payment-card {
+  margin-top: 24px;
+  background: #fff;
+  border: 2px solid #e5e7eb;
+}
+
+.payment-card::before {
+  background: linear-gradient(135deg, #c4b5fd 0%, #fdba74 100%);
+}
+
+.payment-form label {
+  display: block;
+  margin-bottom: 6px;
+  color: #374151;
+  font-weight: 600;
+}
+
+.payment-form input,
+.payment-form select {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-family: 'Cairo', sans-serif;
+  transition: border-color 0.3s ease;
+}
+
+.payment-form input:focus,
+.payment-form select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.payment-form input[type="text"] {
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
+}
+
+/* Card number formatting */
+#cardNumber {
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="12" viewBox="0 0 20 12"><rect width="20" height="12" fill="%23f3f4f6"/><circle cx="4" cy="6" r="2" fill="%23d1d5db"/><circle cx="8" cy="6" r="2" fill="%23d1d5db"/><circle cx="12" cy="6" r="2" fill="%23d1d5db"/><circle cx="16" cy="6" r="2" fill="%23d1d5db"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 20px 12px;
+  padding-right: 40px;
+}
+
+/* Security notice */
+.payment-security {
+  background: #f0f9ff;
+  border: 1px solid #0ea5e9;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 16px;
+  font-size: 0.875rem;
+  color: #0c4a6e;
+  text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .payment-card {
+    margin-top: 16px;
+  }
+  
+  .payment-form input,
+  .payment-form select {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+}
+
