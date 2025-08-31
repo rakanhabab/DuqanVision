@@ -148,21 +148,33 @@ def create_invoice(payload: InvoiceCreate):
         # 3) Insert invoice
         # payment_id left NULL here; timestamp assumed default NOW() in DB
 
-        status = "paid"
+        cur.execute(
+            """
+            SELECT id
+            FROM payment_methods
+            WHERE user_id = %s AND is_default = TRUE
+            """,
+            (payload.user_id,),
+        )
+        payment_row = cur.fetchone()
+        
+        payment_id = payment_row[0] if payment_row and payment_row[0] is not None else None
+        status = "paid" if payment_id else "unpaid"
 
         cur.execute(
             """
-            INSERT INTO invoices (user_id, branch_id, payment_id, total_amount, products_and_quantities, status)
-            VALUES (%s, %s, %s, %s, %s, %s)
-            RETURNING id, user_id, branch_id, payment_id, timestamp, total_amount, products_and_quantities, status
+            INSERT INTO invoices (user_id, branch_id, payment_id, total_amount, products_and_quantities, status, branch_num)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            RETURNING id, user_id, branch_id, payment_id, timestamp, total_amount, products_and_quantities, status, branch_num, invoice_num
             """,
             (
                 payload.user_id,
                 "130df862-b9e2-4233-8d67-d87a3d3b8323",
-                "2067d440-e179-4d2a-a0bd-6a1c7cd18a86",
+                payment_id,
                 total_amount,
-                Json(items_detailed),  # psycopg2 will cast to JSON/JSONB
+                Json(items_detailed),
                 status,
+                "BR001"
             ),
         )
         created = cur.fetchone()
