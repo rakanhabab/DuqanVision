@@ -127,8 +127,17 @@ async function loadUserKPIsFromDatabase() {
             return;
         }
 
+        // Check if user has any invoices
+        const hasInvoices = invoices.data && invoices.data.length > 0;
+        
+        if (!hasInvoices) {
+            // Show welcome message for new users
+            showNewUserWelcome();
+            return;
+        }
+
         // Calculate KPIs from real data
-        const visits = userData.data?.num_visits || 0;
+        const visits = invoices.data?.length || 0;
         const totalSpend = invoices.data?.reduce((sum, invoice) => sum + (invoice.total_amount || 0), 0) || 0;
         const avgInvoice = invoices.data?.length > 0 ? totalSpend / invoices.data.length : 0;
 
@@ -201,6 +210,45 @@ async function loadUserKPIsFromDatabase() {
             previousMonthVisits: 0
         });
     }
+}
+
+// Show welcome message for new users
+function showNewUserWelcome() {
+    const dashboardSection = document.getElementById('dashboard');
+    if (!dashboardSection) return;
+    
+    // Hide the existing dashboard content
+    const summaryCards = dashboardSection.querySelector('.summary-cards');
+    const chartsRow = dashboardSection.querySelector('.charts-row');
+    
+    if (summaryCards) summaryCards.style.display = 'none';
+    if (chartsRow) chartsRow.style.display = 'none';
+    
+    // Create welcome message
+    const welcomeDiv = document.createElement('div');
+    welcomeDiv.className = 'new-user-welcome';
+         welcomeDiv.style.cssText = `
+         text-align: center;
+         padding: 60px 20px;
+         background: #F8F8FC;
+         border-radius: 20px;
+         color: #374151;
+         margin: 20px 0;
+         box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+     `;
+    
+    welcomeDiv.innerHTML = `
+        <div style="font-size: 64px; margin-bottom: 20px;">🎉</div>
+        <h2 style="font-size: 28px; margin-bottom: 15px; font-weight: 700;">مرحباً بك في دكان فيجين!</h2>
+                 <p style="font-size: 18px; margin-bottom: 25px; opacity: 0.9; line-height: 1.6;">
+             نحن متحمسون لرؤيتك هنا!<br>
+             بمجرد قيامك بأول عملية شراء، ستظهر هنا إحصائيات مفصلة عن مشترياتك وزياراتك.
+         </p>
+        
+    `;
+    
+    // Insert welcome message at the beginning of dashboard
+    dashboardSection.insertBefore(welcomeDiv, dashboardSection.firstChild);
 }
 
 // Update KPI elements with real data
@@ -302,10 +350,12 @@ function displayRecentInvoices(invoices) {
     
     if (invoices.length === 0) {
         recentInvoicesList.innerHTML = `
-            <div style="text-align: center; padding: 20px; color: #6c757d;">
-                <div style="font-size: 24px; margin-bottom: 10px;">📄</div>
-                <div>لا توجد فواتير حديثة</div>
-                <div style="font-size: 12px; margin-top: 5px;">ستظهر آخر فواتيرك هنا</div>
+            <div style="text-align: center; padding: 40px; color: #6c757d; background: #f8f9fa; border-radius: 12px; margin: 20px 0;">
+                <div style="font-size: 18px; font-weight: 600; margin-bottom: 10px;">مرحباً بك في دكان فيجين!</div>
+                                 <div style="font-size: 14px; margin-bottom: 20px; line-height: 1.5;">
+                     لم تقم بأي عملية شراء بعد.<br>
+                     ابدأ رحلتك معنا الآن!
+                 </div>
             </div>
         `;
         return;
@@ -314,7 +364,7 @@ function displayRecentInvoices(invoices) {
     recentInvoicesList.innerHTML = invoices.map(invoice => `
         <div class="recent-invoice-item" style="animation: fadeInUp 0.5s ease-out;">
             <div class="recent-invoice-info">
-                <div class="recent-invoice-id">#${invoice.id.slice(0, 8)}</div>
+                <div class="recent-invoice-id">#${invoice.invoice_num || invoice.id.slice(0, 8)}</div>
                 <div class="recent-invoice-date">${db.formatDate(invoice.timestamp)}</div>
             </div>
             <div class="recent-invoice-amount">${db.formatCurrency(invoice.total_amount)}</div>
@@ -443,7 +493,8 @@ async function setupPlotlyCharts() {
             .select(`
                 total_amount, 
                 timestamp,
-                branch_id
+                branch_id,
+                products_and_quantities
             `)
             .eq('user_id', currentUser.id)
             .order('timestamp', { ascending: true });
@@ -455,8 +506,7 @@ async function setupPlotlyCharts() {
         }
 
         if (!invoices || invoices.length === 0) {
-            // Show empty charts if no data
-                    createEmptyCharts();
+            // Don't create charts for new users - they'll see the welcome message instead
         return;
         }
 
@@ -522,12 +572,12 @@ async function setupPlotlyCharts() {
         });
         
         // Create Plotly charts with delay
-        setTimeout(() => {
+        setTimeout(async () => {
             createSpendChart(spendData, chartMonths);
             createVisitsChart(visitsData, chartMonths);
             createBranchVisitsChart(allBranches);
-            createTopProductsChart();
-            createCaloriesHeatmap();
+            await createTopProductsChart();
+            await createCaloriesHeatmap();
         }, 100);
         
                 // Force charts to redraw after a short delay
@@ -812,8 +862,7 @@ async function createTopProductsChart() {
         const { data: invoices, error } = await db.supabase
             .from('invoices')
             .select('products_and_quantities')
-            .eq('user_id', currentUser.id)
-            .eq('status', 'paid');
+            .eq('user_id', currentUser.id);
         
         if (error) {
             console.error('❌ Error fetching invoices:', error);
@@ -839,6 +888,9 @@ async function createTopProductsChart() {
                 });
             }
         });
+        
+        console.log('Product counts:', productCounts);
+        console.log('Invoices with products:', invoices.filter(inv => inv.products_and_quantities && inv.products_and_quantities.length > 0));
         
         // Get top 5 products
         const topProducts = Object.entries(productCounts)
@@ -1004,8 +1056,7 @@ async function createCaloriesHeatmap() {
                 products_and_quantities,
                 timestamp
             `)
-            .eq('user_id', currentUser.id)
-            .eq('status', 'paid');
+            .eq('user_id', currentUser.id);
         
         if (error) {
             console.error('❌ Error fetching invoices for calories:', error);
@@ -1029,6 +1080,9 @@ async function createCaloriesHeatmap() {
                 });
             }
         });
+        
+        console.log('Product IDs found:', Array.from(productIds));
+        console.log('Invoices with products for calories:', invoices.filter(inv => inv.products_and_quantities && inv.products_and_quantities.length > 0));
         
         // Fetch calories for all products
         const { data: products, error: productsError } = await db.supabase

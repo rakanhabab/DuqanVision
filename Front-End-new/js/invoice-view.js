@@ -81,7 +81,7 @@ async function updateInvoiceDetails(invoiceId) {
         console.log('Product prices map:', productPrices);
         
         // Update invoice header
-        document.getElementById('invoice-id').textContent = `#${invoice.id}`;
+        document.getElementById('invoice-id').textContent = `#${invoice.invoice_num || invoice.id}`;
         document.getElementById('invoice-date').textContent = db.formatDate(invoice.timestamp);
         
         // Get branch name based on branch_id
