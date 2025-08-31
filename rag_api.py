@@ -10,8 +10,8 @@ from contextlib import asynccontextmanager
 # Import the refactored RAG system
 import sys
 sys.path.append('refactored_rag_system')
-from refactored_rag_system.rag_system_refactored import RefactoredSupabaseRAG
-from refactored_rag_system.config import RAGConfig
+from rag_system_refactored import RefactoredSupabaseRAG
+from config import RAGConfig
 
 # مفاتيح من config.env
 from dotenv import load_dotenv

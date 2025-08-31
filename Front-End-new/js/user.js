@@ -1632,6 +1632,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     await initializePage();
 });
 
+// Function to send example questions
+function sendExample(question) {
+    const chatInput = document.getElementById('chatInput');
+    if (chatInput) {
+        chatInput.value = question;
+        // Trigger the send button
+        const sendMessageBtn = document.getElementById('sendMessageBtn');
+        if (sendMessageBtn) {
+            sendMessageBtn.click();
+        }
+    }
+}
+
 // Export functions for global access
 window.toggleAccountMenu = toggleAccountMenu;
 window.showAccountInfo = showAccountInfo;
@@ -1640,3 +1653,4 @@ window.logoutUser = logoutUser;
 window.scrollToSection = scrollToSection;
 window.printInvoice = printInvoice;
 window.fileComplaint = fileComplaint;
+window.sendExample = sendExample;

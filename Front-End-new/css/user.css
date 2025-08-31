@@ -1720,11 +1720,85 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: #8b5cf6
 .summary-card.success { border-color: #10b981; background: linear-gradient(135deg, rgba(196, 181, 253, 0.15) 0%, rgba(253, 186, 116, 0.15) 100%); }
 .summary-card.error { border-color: #ef4444; background: linear-gradient(135deg, rgba(196, 181, 253, 0.15) 0%, rgba(253, 186, 116, 0.15) 100%); }
 
+/* Examples Section Styles */
+.examples-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.examples-section h4 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #374151;
+  margin-bottom: 16px;
+  text-align: right;
+}
+
+.examples-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.example-category {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.example-category:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  border-color: #c4b5fd;
+}
+
+.example-category h5 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 12px;
+  text-align: right;
+}
+
+.example-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.example-btn {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: right;
+  font-family: 'Tajawal', sans-serif;
+}
+
+.example-btn:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+  transform: translateX(-2px);
+}
+
+.example-btn:active {
+  transform: translateX(-1px);
+  background: #e5e7eb;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .dashboard-grid { grid-template-columns: 1fr; }
   .summary-cards { grid-template-columns: repeat(2, 1fr); }
   .charts-row { grid-template-columns: repeat(2, 1fr); }
+  .examples-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 768px) {
@@ -1738,6 +1812,9 @@ input:focus, textarea:focus, select:focus { outline: none; border-color: #8b5cf6
   .card { padding: 16px; }
   .account-btn-container .account-dropdown { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(.95); width: 90%; max-width: 320px; right: auto; }
   .account-btn-container .account-dropdown.active { transform: translate(-50%, -50%) scale(1); }
+  .examples-grid { grid-template-columns: 1fr; }
+  .example-category { padding: 12px; }
+  .example-btn { font-size: 12px; padding: 6px 10px; }
 }
 
 /* Contact Information Section */
