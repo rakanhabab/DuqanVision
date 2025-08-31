@@ -11,6 +11,48 @@ import torch
 import threading
 import time
 
+# ---------------------------------------------------------------------------
+# Helpers to integrate with the FastAPI backend
+# ---------------------------------------------------------------------------
+def log_event(message: str) -> None:
+    """
+    Send a human‑readable event message to the API's /events endpoint. This
+    function is non‑blocking and will silently ignore network errors so as
+    not to disrupt the motion tracking loop.
+    """
+    try:
+        requests.post("http://127.0.0.1:8000/events", json={"message": message}, timeout=0.5)
+    except Exception:
+        pass
+
+
+def push_session_update(track_id: int, cart_items_list: list, status: str = "processing", user_name: str | None = None) -> None:
+    """
+    Push the current cart for a track to the API's /sessions/update endpoint.
+
+    :param track_id: The integer track identifier used as session_id.
+    :param cart_items_list: A list of items (objects with .name and .quantity).
+    :param status: The status of the session (processing, paid, unpaid).
+    :param user_name: Optional human‑readable name linked to this track.
+    """
+    cart_dict: dict[str, int] = {}
+    for it in cart_items_list:
+        name = getattr(it, 'name', None)
+        qty = getattr(it, 'quantity', None)
+        if name and qty:
+            cart_dict[name] = int(qty)
+    payload = {
+        "session_id": str(track_id),
+        "cart": cart_dict,
+        "status": status
+    }
+    if user_name:
+        payload["customer_name"] = user_name
+    try:
+        requests.post("http://127.0.0.1:8000/sessions/update", json=payload, timeout=0.5)
+    except Exception:
+        pass
+
 INVOICE_API_URL = "http://127.0.0.1:8000/invoices"
 
 MOTION_CAM_INDEX = 0        # YOLO tracking camera
@@ -188,7 +230,7 @@ def on_zone_exit(track_id: int, zone: str):
                 print(f"[snapshot] Returned items for {zone}, track {track_id}: {returned}")
                 cart_list = cart_items.get(track_id, [])
                 for item_name in returned:
-                    for it in cart_list:
+                    for it in list(cart_list):
                         if getattr(it, "name", None) == item_name:
                             if getattr(it, "quantity", 1) > 1:
                                 it.quantity -= 1
@@ -196,6 +238,13 @@ def on_zone_exit(track_id: int, zone: str):
                             else:
                                 cart_list.remove(it)
                                 print(f"[cart] track {track_id}: removed {item_name}")
+                            # Log and push update
+                            try:
+                                log_event(f"track {track_id}: returned {item_name}")
+                                user_name = identity_map.get(track_id, (None, None))[1] if track_id in identity_map else None
+                                push_session_update(track_id, cart_items[track_id], status="processing", user_name=user_name)
+                            except Exception:
+                                pass
                             break
         # Schedule the processing after 3 seconds
         threading.Timer(2.0, _process_exit).start()
@@ -252,6 +301,15 @@ def queue_invoice_item(track_id: int, name: str, quantity: int):
         else:
             items.append(InvoiceItem(name=name, quantity=quantity))
             print(f"[cart] track {track_id}: +{quantity} x {name} (total items now {len(items)})")
+        # Notify API about the updated cart and log the event
+        try:
+            # Log event
+            log_event(f"track {track_id}: added {quantity} × {name}")
+            # Push session update with current cart state
+            user_name = identity_map.get(track_id, (None, None))[1] if track_id in identity_map else None
+            push_session_update(track_id, cart_items[track_id], status="processing", user_name=user_name)
+        except Exception:
+            pass
     except Exception as e:
         print(f"[cart] Failed to queue item for track {track_id}: {e}")
 
@@ -273,10 +331,24 @@ def _flush_invoice_for_track(track_id: int):
 
     if not user_id:
         print(f"[invoice] track {track_id}: no user_id bound; skipping invoice.")
+        # If the user ID is unknown, mark the session unpaid and notify API
+        try:
+            log_event(f"track {track_id}: left without user ID; invoice skipped")
+            user_name = identity_map.get(track_id, (None, None))[1] if track_id in identity_map else None
+            push_session_update(track_id, cart_items.get(track_id, []), status="unpaid", user_name=user_name)
+        except Exception:
+            pass
         return
 
     if not items:
         print(f"[invoice] track {track_id}: no items; nothing to invoice.")
+        # Clear the cart and mark unpaid
+        try:
+            log_event(f"track {track_id}: no items to invoice")
+            user_name = identity_map.get(track_id, (None, None))[1] if track_id in identity_map else None
+            push_session_update(track_id, [], status="unpaid", user_name=user_name)
+        except Exception:
+            pass
         return
 
     # Build pydantic model then POST as JSON. Use a background thread to avoid
@@ -284,14 +356,34 @@ def _flush_invoice_for_track(track_id: int):
     def _post_invoice(payload, track_id=track_id):
         try:
             resp = requests.post(INVOICE_API_URL, json=_to_dict(payload))
-            if resp.status_code >= 200 and resp.status_code < 300:
+            if 200 <= resp.status_code < 300:
                 print(f"[invoice] track {track_id}: SUCCESS {resp.status_code}")
                 print(_to_dict(payload))
-                cart_items.pop(track_id, None)  # clear on success
+                # Successful invoice: mark session paid and clear cart
+                try:
+                    log_event(f"track {track_id}: invoice created (paid)")
+                    user_name = identity_map.get(track_id, (None, None))[1] if track_id in identity_map else None
+                    push_session_update(track_id, [], status="paid", user_name=user_name)
+                except Exception:
+                    pass
+                cart_items.pop(track_id, None)
             else:
                 print(f"[invoice] track {track_id}: FAILED {resp.status_code} - {resp.text}")
+                # Failure: mark session unpaid
+                try:
+                    log_event(f"track {track_id}: invoice creation failed")
+                    user_name = identity_map.get(track_id, (None, None))[1] if track_id in identity_map else None
+                    push_session_update(track_id, cart_items.get(track_id, []), status="unpaid", user_name=user_name)
+                except Exception:
+                    pass
         except Exception as e:
             print(f"[invoice] track {track_id}: ERROR posting invoice: {e}")
+            try:
+                log_event(f"track {track_id}: invoice creation error")
+                user_name = identity_map.get(track_id, (None, None))[1] if track_id in identity_map else None
+                push_session_update(track_id, cart_items.get(track_id, []), status="unpaid", user_name=user_name)
+            except Exception:
+                pass
 
     try:
         payload = InvoiceCreate(user_id=user_id, items=items)

@@ -1,13 +1,32 @@
 // Operations2 Management JavaScript with Database Integration & Burger Menu
-import { db } from '../js/database.js';
+/*
+ * Operations2 Management JavaScript
+ *
+ * This module fetches live session and event data from the backend API
+ * and renders it in the right‑hand panel. It also includes a burger menu
+ * controller for showing and hiding the sidebar on small screens. The
+ * implementation intentionally avoids altering admin.js and focuses on
+ * plugging into the improved UI without changing its core functionality.
+ */
 
 class Operations2Service {
     constructor() {
-        this.productsData = [];
-        this.initializeOperations();
+        // Data caches
+        this.sessionsData = [];
+        this.eventsData = [];
+
+        // Initialize UI
         this.initializeBurgerMenu();
+        this.initializeFilters();
+
+        // Load data from API and set up polling
+        this.loadData();
+        this.setupRealTimeUpdates();
     }
 
+    /**
+     * Show/hide the sidebar when the burger button is clicked.
+     */
     initializeBurgerMenu() {
         const burgerBtn = document.getElementById('burgerMenuBtn');
         const sidebar = document.getElementById('sidebar');
@@ -18,21 +37,18 @@ class Operations2Service {
                 sidebar.classList.add('show');
             });
         }
-
         if (closeBtn) {
             closeBtn.addEventListener('click', () => {
                 sidebar.classList.remove('show');
             });
         }
-
-        // Close sidebar when clicking outside
+        // Clicking outside the sidebar closes it
         document.addEventListener('click', (e) => {
             if (!sidebar.contains(e.target) && !burgerBtn.contains(e.target)) {
                 sidebar.classList.remove('show');
             }
         });
-
-        // Close sidebar on escape key
+        // Escape key closes the sidebar
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 sidebar.classList.remove('show');
@@ -40,119 +56,123 @@ class Operations2Service {
         });
     }
 
-    async initializeOperations() {
+    /**
+     * Fetch sessions and events from the API and render them.
+     */
+    async loadData() {
+        await Promise.all([this.fetchSessions(), this.fetchEvents()]);
+        this.updateSessionsDisplay();
+        this.updateEventLog();
+    }
+
+    /**
+     * Fetch current sessions from the backend. Each session is expected to
+     * have the form { id, customerId, customerName, status, timestamp,
+     * items: [{ name, sku, quantity, price }] }.
+     */
+    async fetchSessions() {
         try {
-            // Load products data first
-            await this.loadProductsData();
-            
-            // Load sessions data
-            await this.loadSessionsData();
-            
-            // Initialize UI components
-            this.initializeFilters();
-            this.setupRealTimeUpdates();
-        } catch (error) {
-            console.error('Error initializing operations:', error);
+            const resp = await fetch('http://127.0.0.1:8000/sessions');
+            if (!resp.ok) throw new Error('Failed to fetch sessions');
+            const data = await resp.json();
+            // Ensure data is an array
+            this.sessionsData = Array.isArray(data) ? data : [];
+        } catch (err) {
+            console.error('Error fetching sessions:', err);
+            this.sessionsData = [];
         }
     }
 
-    async loadProductsData() {
+    /**
+     * Fetch recent events from the backend. Each event should include a
+     * message and a timestamp. The backend returns the most recent
+     * events first.
+     */
+    async fetchEvents() {
         try {
-            const products = await db.getProducts();
-            this.productsData = products || this.getMockProductsData();
-        } catch (error) {
-            console.error('Error loading products:', error);
-            this.productsData = this.getMockProductsData();
+            const resp = await fetch('http://127.0.0.1:8000/events');
+            if (!resp.ok) throw new Error('Failed to fetch events');
+            const data = await resp.json();
+            this.eventsData = Array.isArray(data) ? data : [];
+        } catch (err) {
+            console.error('Error fetching events:', err);
+            this.eventsData = [];
         }
     }
 
-    getMockProductsData() {
-        return [
-            { id: 'SKU001', name: 'Chocolate Bar', price: 2.50, shelf: 'Aisle 1 - Shelf 2', category: 'Candy', calories: 150 },
-            { id: 'SKU002', name: 'Orange Juice', price: 3.75, shelf: 'Aisle 2 - Shelf 1', category: 'Beverages', calories: 120 },
-            { id: 'SKU003', name: 'barni', price: 1.75, shelf: 'Aisle 3 - Shelf 1', category: 'Cake', calories: 120 },
-            { id: 'SKU004', name: 'Bread Loaf', price: 2.25, shelf: 'Aisle 1 - Shelf 1', category: 'Bakery', calories: 80 },
-            { id: 'SKU005', name: 'Milk 1L', price: 4.50, shelf: 'Aisle 2 - Shelf 3', category: 'Dairy', calories: 100 }
-        ];
-    }
-
-    async loadSessionsData() {
-        try {
-            // Create sessions with products
-            this.createSessionsWithProducts();
-            
-            // Update UI
-            this.updateSessionsDisplay();
-        } catch (error) {
-            console.error('Error loading sessions data:', error);
-        }
-    }
-
-    createSessionsWithProducts() {
-        // Generate exactly 3 sessions with different statuses
-        this.sessionsData = [
-            {
-                customerId: 'CUST001',
-                timestamp: new Date(Date.now() - 15 * 60 * 1000), // 15 minutes ago
-                status: 'processing',
-                items: this.getRandomItems(2),
-                total: 0
-            },
-            {
-                customerId: 'CUST002',
-                timestamp: new Date(Date.now() - 8 * 60 * 1000), // 8 minutes ago
-                status: 'paid',
-                items: this.getRandomItems(2),
-                total: 0
-            },
-            {
-                customerId: 'CUST003',
-                timestamp: new Date(Date.now() - 3 * 60 * 1000), // 3 minutes ago
-                status: 'unpaid',
-                items: this.getRandomItems(2),
-                total: 0
-            }
-        ];
-
-        // Calculate totals
-        this.sessionsData.forEach(session => {
-            session.total = session.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        });
-    }
-
-    getRandomItems(count) {
-        const shuffled = [...this.productsData].sort(() => 0.5 - Math.random());
-        return shuffled.slice(0, count).map(product => ({
-            ...product,
-            quantity: Math.floor(Math.random() * 3) + 1
-        }));
-    }
-
+    /**
+     * Render the sessions in the DOM. Sessions are filtered by the currently
+     * active filter button (all, processing, paid, unpaid).
+     */
     updateSessionsDisplay() {
         const sessionsGrid = document.getElementById('sessionsGrid');
         if (!sessionsGrid) return;
-
         sessionsGrid.innerHTML = '';
-
-        this.sessionsData.forEach(session => {
-            const sessionCard = this.createSessionCard(session);
-            sessionsGrid.appendChild(sessionCard);
+        // Determine current filter
+        const activeBtn = document.querySelector('.filter-btn.active');
+        const filter = activeBtn ? activeBtn.getAttribute('data-filter') : 'all';
+        const filtered = filter === 'all'
+            ? this.sessionsData
+            : this.sessionsData.filter(s => (s.status || '').toLowerCase() === filter);
+        filtered.forEach(session => {
+            const card = this.createSessionCard(session);
+            sessionsGrid.appendChild(card);
         });
     }
 
+    /**
+     * Render the event log in the DOM.
+     */
+    updateEventLog() {
+        const logWrap = document.getElementById('eventLog');
+        if (!logWrap) return;
+        logWrap.innerHTML = '';
+        // Show events in chronological order (oldest first)
+        const events = [...this.eventsData].reverse();
+        events.forEach(ev => {
+            const div = document.createElement('div');
+            div.className = 'event-log-entry';
+            const time = this.formatTimestamp(ev.timestamp);
+            const msg = ev.message || ev.event || '';
+            div.textContent = `${time} • ${msg}`;
+            logWrap.appendChild(div);
+        });
+        // Auto-scroll to bottom
+        logWrap.scrollTop = logWrap.scrollHeight;
+    }
+
+    /**
+     * Create a DOM card for a single session. A session includes a list of
+     * items, each with name, sku, quantity and price. The status determines
+     * styling (processing → live bar at top). Totals are computed on the
+     * fly.
+     */
     createSessionCard(session) {
         const card = document.createElement('div');
-        card.className = `customer-session-card ${session.status === 'processing' ? 'live' : ''}`;
-        
+        const status = (session.status || '').toLowerCase();
+        card.className = `customer-session-card ${status === 'processing' ? 'live' : ''}`;
+        const items = Array.isArray(session.items) ? session.items : [];
+        let total = 0;
+        const itemsHtml = items.map(item => {
+            const price = Number(item.price) || 0;
+            const qty = Number(item.quantity) || 0;
+            total += price * qty;
+            return `
+                <div class="cart-item">
+                    <div class="col-product">${item.name}</div>
+                    <div class="col-sku">${item.sku || ''}</div>
+                    <div class="col-qty">${qty}</div>
+                    <div class="col-price">${this.formatCurrency(price)}</div>
+                </div>`;
+        }).join('');
         card.innerHTML = `
             <div class="session-header">
                 <div class="session-customer-info">
-                    <h4>customer_id: ${session.customerId}</h4>
+                    <h4>customer_id: ${session.customerId || session.id}</h4>
                     <div class="session-timestamp">session_timestamp: ${this.formatTimestamp(session.timestamp)}</div>
                 </div>
-                <div class="session-status ${session.status}">status: ${session.status}</div>
+                    <div class="session-status ${status}">status: ${status}</div>
             </div>
-            
             <div class="cart-items">
                 <div class="cart-item header-row">
                     <div class="col-product">PRODUCT NAME</div>
@@ -160,132 +180,96 @@ class Operations2Service {
                     <div class="col-qty">QTY</div>
                     <div class="col-price">PRICE</div>
                 </div>
-                ${session.items.map(item => `
-                    <div class="cart-item">
-                        <div class="col-product">${item.name}</div>
-                        <div class="col-sku">${item.id}</div>
-                        <div class="col-qty">${item.quantity}</div>
-                        <div class="col-price">${db.formatCurrency(item.price)}</div>
-                    </div>
-                `).join('')}
+                ${itemsHtml}
                 <div class="cart-item total-row">
                     <div class="col-product">TOTAL:</div>
                     <div class="col-sku"></div>
                     <div class="col-qty"></div>
-                    <div class="col-price">${session.total.toFixed(2)} ر.س</div>
+                    <div class="col-price">${this.formatCurrency(total)}</div>
                 </div>
             </div>
         `;
-
         return card;
     }
 
-    formatTimestamp(date) {
-        const now = new Date();
-        const diffMs = now - date;
-        const diffMins = Math.floor(diffMs / (1000 * 60));
-        
-        if (diffMins < 1) return 'Just now';
-        if (diffMins === 1) return '1 minute ago';
-        if (diffMins < 60) return `${diffMins} minutes ago`;
-        
-        const diffHours = Math.floor(diffMins / 60);
-        if (diffHours === 1) return '1 hour ago';
-        if (diffHours < 24) return `${diffHours} hours ago`;
-        
-        return date.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+    /**
+     * Convert an ISO timestamp or Date into a human‑readable relative string.
+     * Fallbacks gracefully if parsing fails.
+     */
+    formatTimestamp(ts) {
+        try {
+            const date = ts instanceof Date ? ts : new Date(ts);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            if (diffMins < 1) return 'Just now';
+            if (diffMins === 1) return '1 minute ago';
+            if (diffMins < 60) return `${diffMins} minutes ago`;
+            const diffHours = Math.floor(diffMins / 60);
+            if (diffHours === 1) return '1 hour ago';
+            if (diffHours < 24) return `${diffHours} hours ago`;
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        } catch (e) {
+            return String(ts);
+        }
     }
 
+    /**
+     * Format a number as currency (SAR). If the value is NaN, returns SAR 0.00.
+     */
+    formatCurrency(value) {
+        const num = Number(value);
+        if (Number.isNaN(num)) return 'SAR 0.00';
+        return `SAR ${num.toFixed(2)}`;
+    }
+
+    /**
+     * Set up filter buttons (all/processing/paid/unpaid). When clicked, the
+     * active button toggles and sessions are re‑rendered.
+     */
     initializeFilters() {
-        const filterButtons = document.querySelectorAll('.filter-btn');
-        
-        filterButtons.forEach(btn => {
+        const buttons = document.querySelectorAll('.filter-btn');
+        buttons.forEach(btn => {
             btn.addEventListener('click', () => {
-                // Remove active class from all buttons
-                filterButtons.forEach(b => b.classList.remove('active'));
-                // Add active class to clicked button
+                buttons.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                
-                // Filter sessions
-                const filter = btn.getAttribute('data-filter');
-                this.filterSessions(filter);
+                this.updateSessionsDisplay();
             });
         });
     }
 
-    filterSessions(filter) {
-        const sessionsGrid = document.getElementById('sessionsGrid');
-        if (!sessionsGrid) return;
-
-        sessionsGrid.innerHTML = '';
-
-        const filteredSessions = filter === 'all' 
-            ? this.sessionsData 
-            : this.sessionsData.filter(session => session.status === filter);
-
-        filteredSessions.forEach(session => {
-            const sessionCard = this.createSessionCard(session);
-            sessionsGrid.appendChild(sessionCard);
-        });
-    }
-
+    /**
+     * Poll the API for new sessions/events every 5 seconds. This ensures
+     * that the dashboard stays up to date with the latest activity.
+     */
     setupRealTimeUpdates() {
-        // Update random session every 10 seconds
-        setInterval(() => {
-            this.updateRandomSession();
-        }, 10000);
-    }
-
-    updateRandomSession() {
-        // Ensure CUST001 is always 'processing', CUST002 is 'paid', CUST003 is 'unpaid'
-        const sessionIndex = Math.floor(Math.random() * this.sessionsData.length);
-        const session = this.sessionsData[sessionIndex];
-        
-        // Update timestamp to make it look live
-        session.timestamp = new Date();
-        
-        // Update display
-        this.updateSessionsDisplay();
+        setInterval(async () => {
+            await Promise.all([this.fetchSessions(), this.fetchEvents()]);
+            this.updateSessionsDisplay();
+            this.updateEventLog();
+        }, 5000);
     }
 }
 
-// Initialize operations when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
+// Initialise when the DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
     window.operations2Service = new Operations2Service();
 });
 
-// Add CSS animations for notifications
-const style = document.createElement('style');
-style.textContent = `
+// Inject lightweight CSS animations for newly inserted cards
+const animStyle = document.createElement('style');
+animStyle.textContent = `
     @keyframes slideInRight {
-        from {
-            opacity: 0;
-            transform: translateX(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
+        from { opacity: 0; transform: translateX(20px); }
+        to   { opacity: 1; transform: translateX(0); }
     }
-    
-    @keyframes slideOutRight {
-        from {
-            opacity: 1;
-            transform: translateX(0);
-        }
-        to {
-            opacity: 0;
-            transform: translateX(20px);
-        }
-    }
-    
     .customer-session-card {
         animation: slideInRight 0.3s ease-out;
     }
 `;
-document.head.appendChild(style);
+document.head.appendChild(animStyle);

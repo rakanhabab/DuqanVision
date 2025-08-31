@@ -242,3 +242,168 @@ BEGIN
   RETURN out_items;
 END
 """
+
+# ---------------------------------------------------------------------------
+# Additional endpoints for live sessions, events and MJPEG video streaming
+# ---------------------------------------------------------------------------
+# The operations dashboard and motion tracking subsystem need a simple way to
+# exchange session information and event log messages. Instead of storing
+# these in a database, we keep them in memory here. This section augments
+# the existing FastAPI application with new routes and middleware. It should
+# not interfere with the existing invoice endpoints above.
+
+from fastapi.responses import StreamingResponse  # type: ignore
+from fastapi.middleware.cors import CORSMiddleware  # type: ignore
+import cv2  # type: ignore
+import threading
+from typing import Dict, Any
+
+import time
+
+# Enable CORS so the front‑end can call this API from any origin
+try:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+except Exception:
+    # Ignore if middleware has already been added
+    pass
+
+# In‑memory store of sessions and events
+sessions_state: Dict[str, Dict[str, Any]] = {}
+event_log: List[Dict[str, str]] = []
+
+
+class SessionUpdate(BaseModel):
+    """Payload schema for updating or creating a session."""
+    session_id: constr(strip_whitespace=True, min_length=1)
+    cart: Dict[str, int] | None = None
+    status: constr(strip_whitespace=True, min_length=1) | None = None
+    customer_name: str | None = None
+    customer_id: str | None = None
+
+
+class EventIn(BaseModel):
+    """Payload schema for posting a new event message."""
+    message: constr(strip_whitespace=True, min_length=1)
+
+
+@app.get("/sessions")
+def api_get_sessions() -> List[Dict[str, Any]]:
+    """Return a list of all current sessions."""
+    return list(sessions_state.values())
+
+
+@app.post("/sessions/update")
+def api_update_session(update: SessionUpdate) -> Dict[str, Any]:
+    """Create or update a session with cart and status information.
+
+    Each session is identified by a unique `session_id`. Providing a `cart`
+    replaces the existing items list. Status, customer_name and customer_id
+    are updated if present. A timestamp is always updated on each call.
+    """
+    sid = update.session_id
+    session = sessions_state.get(sid) or {
+        "id": sid,
+        "customerId": update.customer_id or sid,
+        "customerName": update.customer_name or "",
+        "status": "processing",
+        "timestamp": datetime.utcnow().isoformat(),
+        "items": []
+    }
+    # Update identity
+    if update.customer_id:
+        session["customerId"] = update.customer_id
+    if update.customer_name:
+        session["customerName"] = update.customer_name
+    # Update cart
+    if update.cart is not None:
+        items: List[Dict[str, Any]] = []
+        for name, qty in update.cart.items():
+            try:
+                q = int(qty)
+            except Exception:
+                q = 0
+            if q <= 0:
+                continue
+            items.append({
+                "name": name,
+                "sku": name,
+                "quantity": q,
+                "price": 0.0
+            })
+        session["items"] = items
+    # Update status if provided
+    if update.status:
+        session["status"] = update.status
+    # Always update timestamp
+    session["timestamp"] = datetime.utcnow().isoformat()
+    sessions_state[sid] = session
+    return {"ok": True, "session": session}
+
+
+@app.get("/events")
+def api_get_events(limit: int = Query(default=100, ge=1, le=1000)) -> List[Dict[str, str]]:
+    """Return the most recent event messages up to `limit`."""
+    return event_log[-limit:]
+
+
+@app.post("/events")
+def api_post_event(event: EventIn) -> Dict[str, str]:
+    """Append a new event message to the in‑memory log."""
+    entry = {
+        "timestamp": datetime.utcnow().isoformat(),
+        "message": event.message
+    }
+    event_log.append(entry)
+    # Keep only last 100 events
+    if len(event_log) > 100:
+        del event_log[:-100]
+    return {"ok": True}
+
+
+# Video feed globals and helpers
+_cap_lock = threading.Lock()
+_cap: cv2.VideoCapture | None = None
+
+
+def _get_cap() -> cv2.VideoCapture:
+    """Get or create a global VideoCapture object. Throws on failure."""
+    global _cap
+    with _cap_lock:
+        if _cap is None or not _cap.isOpened():
+            cap = cv2.VideoCapture(0)
+            if not cap.isOpened():
+                raise RuntimeError("Could not open camera for video feed")
+            _cap = cap
+        return _cap
+
+
+@app.get("/video_feed")
+def api_video_feed():
+    """Serve an MJPEG stream of frames from the default camera."""
+    def gen():
+        try:
+            cap = _get_cap()
+        except Exception as exc:
+            # yield empty frames in error state to avoid connection drop
+            print(f"[video_feed] camera error: {exc}")
+            while True:
+                time.sleep(1.0)
+                yield b''
+        while True:
+            ok, frame = cap.read()
+            if not ok:
+                time.sleep(0.05)
+                continue
+            ret, buffer = cv2.imencode('.jpg', frame)
+            if not ret:
+                continue
+            frame_bytes = buffer.tobytes()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+    return StreamingResponse(gen(), media_type='multipart/x-mixed-replace; boundary=frame')
