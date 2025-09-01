@@ -12,48 +12,64 @@ from typing import List
 import torch
 import threading
 import time
+from queue import SimpleQueue, Empty
+from typing import Optional
+from dataclasses import dataclass
 
-# ---------------------------------------------------------------------------
-# Helpers to integrate with the FastAPI backend
-# ---------------------------------------------------------------------------
+EVENT_URL = "http://127.0.0.1:8000/events"
+SESSIONS_URL = "http://127.0.0.1:8000/sessions/update"
+_HTTP_TIMEOUT = 0.5
+
+
+@dataclass
+class HttpJob:
+    url: str
+    json: dict
+
+# One shared queue/worker for all lightweight HTTP posts
+_http_q: "SimpleQueue[Optional[HttpJob]]" = SimpleQueue()
+
+def _http_worker():
+    s = requests.Session()
+    while True:
+        job = _http_q.get()
+        if job is None:  # optional shutdown
+            break
+        try:
+            s.post(job.url, json=job.json, timeout=_HTTP_TIMEOUT)
+        except Exception:
+            # swallow errors to avoid impacting the main loop
+            pass
+        finally:
+            _http_q.task_done()
+
+_thread = threading.Thread(target=_http_worker, daemon=True)
+_thread.start()
+
+
+
 def log_event(message: str) -> None:
-    """
-    Send a human‑readable event message to the API's /events endpoint. This
-    function is non‑blocking and will silently ignore network errors so as
-    not to disrupt the motion tracking loop.
-    """
-    try:
-        requests.post("http://127.0.0.1:8000/events", json={"message": message}, timeout=0.5)
-    except Exception:
-        pass
+    _http_q.put(HttpJob(url=EVENT_URL, json={"message": message}))
 
-
-def push_session_update(track_id: int, cart_items_list: list, status: str = "processing", user_name: str | None = None) -> None:
+def push_session_update(track_id: int, cart_items_list: list, status: str = "processing") -> None:
     """
     Push the current cart for a track to the API's /sessions/update endpoint.
-
-    :param track_id: The integer track identifier used as session_id.
-    :param cart_items_list: A list of items (objects with .name and .quantity).
-    :param status: The status of the session (processing, paid, unpaid).
-    :param user_name: Optional human‑readable name linked to this track.
+    Non-blocking: enqueues a background HTTP job.
     """
     cart_dict: dict[str, int] = {}
     for it in cart_items_list:
-        name = getattr(it, 'name', None)
-        qty = getattr(it, 'quantity', None)
+        name = getattr(it, "name", None)
+        qty = getattr(it, "quantity", None)
         if name and qty:
             cart_dict[name] = int(qty)
+
     payload = {
         "session_id": str(track_id),
         "cart": cart_dict,
-        "status": status
+        "status": status,
     }
-    if user_name:
-        payload["customer_name"] = user_name
-    try:
-        requests.post("http://127.0.0.1:8000/sessions/update", json=payload, timeout=0.5)
-    except Exception:
-        pass
+
+    _http_q.put(HttpJob(url=SESSIONS_URL, json=payload))
 
 INVOICE_API_URL = "http://127.0.0.1:8000/invoices"
 
@@ -243,8 +259,7 @@ def on_zone_exit(track_id: int, zone: str):
                             # Log and push update
                             try:
                                 log_event(f"track {track_id}: returned {item_name}")
-                                user_name = identity_map.get(track_id, (None, None))[1] if track_id in identity_map else None
-                                push_session_update(track_id, cart_items[track_id], status="processing", user_name=user_name)
+                                push_session_update(track_id, cart_items[track_id], status="processing")
                             except Exception:
                                 pass
                             break
@@ -308,8 +323,7 @@ def queue_invoice_item(track_id: int, name: str, quantity: int):
             # Log event
             log_event(f"track {track_id}: added {quantity} × {name}")
             # Push session update with current cart state
-            user_name = identity_map.get(track_id, (None, None))[1] if track_id in identity_map else None
-            push_session_update(track_id, cart_items[track_id], status="processing", user_name=user_name)
+            push_session_update(track_id, cart_items[track_id], status="processing")
         except Exception:
             pass
     except Exception as e:
@@ -334,21 +348,12 @@ def _flush_invoice_for_track(track_id: int):
     if not user_id:
         print(f"[invoice] track {track_id}: no user_id bound; skipping invoice.")
         # If the user ID is unknown, mark the session unpaid and notify API
-        try:
-            log_event(f"track {track_id}: left without user ID; invoice skipped")
-            user_name = identity_map.get(track_id, (None, None))[1] if track_id in identity_map else None
-            push_session_update(track_id, cart_items.get(track_id, []), status="unpaid", user_name=user_name)
-        except Exception:
-            pass
-        return
 
     if not items:
         print(f"[invoice] track {track_id}: no items; nothing to invoice.")
         # Clear the cart and mark unpaid
         try:
-            log_event(f"track {track_id}: no items to invoice")
-            user_name = identity_map.get(track_id, (None, None))[1] if track_id in identity_map else None
-            push_session_update(track_id, [], status="unpaid", user_name=user_name)
+            push_session_update(track_id, [], status="paid")
         except Exception:
             pass
         return
@@ -363,9 +368,8 @@ def _flush_invoice_for_track(track_id: int):
                 print(_to_dict(payload))
                 # Successful invoice: mark session paid and clear cart
                 try:
-                    log_event(f"track {track_id}: invoice created (paid)")
-                    user_name = identity_map.get(track_id, (None, None))[1] if track_id in identity_map else None
-                    push_session_update(track_id, [], status="paid", user_name=user_name)
+                    log_event(f"track {track_id}: invoice created")
+                    push_session_update(track_id, cart_items.get(track_id, []), status="paid")
                 except Exception:
                     pass
                 cart_items.pop(track_id, None)
@@ -373,17 +377,13 @@ def _flush_invoice_for_track(track_id: int):
                 print(f"[invoice] track {track_id}: FAILED {resp.status_code} - {resp.text}")
                 # Failure: mark session unpaid
                 try:
-                    log_event(f"track {track_id}: invoice creation failed")
-                    user_name = identity_map.get(track_id, (None, None))[1] if track_id in identity_map else None
-                    push_session_update(track_id, cart_items.get(track_id, []), status="unpaid", user_name=user_name)
+                    push_session_update(track_id, cart_items.get(track_id, []), status="unpaid")
                 except Exception:
                     pass
         except Exception as e:
             print(f"[invoice] track {track_id}: ERROR posting invoice: {e}")
             try:
-                log_event(f"track {track_id}: invoice creation error")
-                user_name = identity_map.get(track_id, (None, None))[1] if track_id in identity_map else None
-                push_session_update(track_id, cart_items.get(track_id, []), status="unpaid", user_name=user_name)
+                push_session_update(track_id, cart_items.get(track_id, []), status="unpaid")
             except Exception:
                 pass
 
@@ -576,6 +576,12 @@ def main():
         frame_motion = result.orig_img 
         h0, w0 = frame_motion.shape[:2]
         current_tracks.clear()
+        
+        # draw qr zone 
+        x1_q1, y1_q1, x2_q1, y2_q1 = QR_UPDATE_ZONE
+        cv2.rectangle(frame_motion, (x1_q1, y1_q1), (x2_q1, y2_q1), (0, 255, 0), 2)
+        cv2.putText(frame_motion, "Qr zone", (x1_q1, max(20, y1_q1 - 8)),
+            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
 
         # draw zones
         for name, (x1, y1, x2, y2) in TABLES.items():
@@ -623,9 +629,9 @@ def main():
                 # label show linked identity
                 if track_id in identity_map:
                     user_id, user_name = identity_map[track_id]
-                    id_text = f"{user_name} ({user_id})"
+                    id_text = f"{user_name}"
                 else:
-                    id_text = f"ID {track_id}"
+                    id_text = f"{track_id}"
                 label = f"{id_text} | {zone or 'No table'}"
                 cv2.putText(frame_motion, label, (x1, max(20, y1 - 8)),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.65, color, 2, cv2.LINE_AA)
@@ -661,7 +667,7 @@ def main():
                     cv2.putText(frame_qr, text, (x, max(y - 10, 0)),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
                     payload = text.strip()
-                    user_id, user_name = payload, payload
+                    user_id, user_name = ([p.strip() for p in payload.split(",", 1)] + [""])[:2]
                     # Update identity for manually selected track
                     if selected_track_id[0] is not None:
                         identity_map[selected_track_id[0]] = (user_id, user_name)
@@ -681,7 +687,7 @@ def main():
                 cv2.putText(frame_qr, text, (x, max(y - 10, 0)),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
                 payload = text.strip()
-                user_id, user_name = payload, payload
+                user_id, user_name = ([p.strip() for p in payload.split(",", 1)] + [""])[:2]
                 # Update identity for manually selected track
                 if selected_track_id[0] is not None:
                     identity_map[selected_track_id[0]] = (user_id, user_name)
