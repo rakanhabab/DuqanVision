@@ -37,6 +37,12 @@ async function ensureAuth() {
     return;
   }
 }
+function utf8ByteStr(s){
+  const bytes = new TextEncoder().encode(s);
+  let out = '';
+  for (const b of bytes) out += String.fromCharCode(b);
+  return out;
+}
 
 function showUserQR(userId) {
   const container = document.getElementById('qr');
@@ -50,6 +56,19 @@ function showUserQR(userId) {
     colorLight: '#FFFFFF',
     correctLevel: QRCode.CorrectLevel.M
   });
+}
+
+function getCurrentUsername() {
+  try {
+    const currentUser = localStorage.getItem('current_user');
+    if (currentUser) {
+      const user = JSON.parse(currentUser);
+      return user.email;
+    }
+  } catch (error) {
+    console.error('Error getting user ID:', error);
+  }
+  return '12345'; // Fallback
 }
 
 function getCurrentUserId() {
@@ -242,8 +261,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Generate user QR on load with actual user ID
   const userId = getCurrentUserId();
-  showUserQR(userId);
-
+  const username = getCurrentUsername();
+  showUserQR(userId + "," + username);
   // Buttons
   const simulateBtn = document.getElementById('simulateScan');
   const backDashBtn = document.getElementById('backDash');
