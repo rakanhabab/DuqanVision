@@ -104,7 +104,7 @@ function displayInvoicesTable(invoices) {
         }
         
         invoiceRow.innerHTML = `
-            <div class="invoice-id">#${invoice.id}</div>
+            <div class="invoice-id">#${invoice.invoice_num || invoice.id}</div>
             <div class="invoice-date">${db.formatDate(invoice.timestamp)}</div>
             <div class="invoice-branch">${branchName}</div>
             <div class="invoice-actions">
