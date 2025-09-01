@@ -51,6 +51,7 @@
                 </div>
             </div>
             <div class="cta">
+                <a href="./business.html" class="btn btn-outline">للأعمال</a>
                 <div class="language-toggle" onclick="toggleLanguage()">
                     <span class="lang-text">عربي</span>
                     <div class="toggle-switch">
@@ -787,6 +788,15 @@
             color: #6b7280;
         }
 
+        /* Button Styles */
+        .nav .cta .btn {
+            margin-left: 10px;
+        }
+
+        .hero-actions .btn {
+            margin: 0 5px;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .dropdown-menu {
@@ -822,6 +832,16 @@
 
             .analysis-chart {
                 padding: 24px;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .hero-actions .btn {
+                margin: 0;
+                width: 100%;
             }
         }
     </style>
