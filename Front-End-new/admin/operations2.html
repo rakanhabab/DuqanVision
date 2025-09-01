@@ -87,9 +87,31 @@
                     </div>
                     
                     <div class="live-stream-container">
-                        <!-- Embed a live MJPEG stream from the backend. The stream is served by the API
-                             at /video_feed and rendered via an <img> tag. -->
-                        <img id="videoFeed" src="http://127.0.0.1:8000/video_feed" alt="Live stream" style="width:100%; height:100%; object-fit:contain;" />
+                        <div class="camera-grid">
+                            <!-- Front Camera -->
+                            <div class="camera-card">
+                                <div class="camera-feed">
+                                    <img id="frontVideoFeed" src="http://127.0.0.1:8000/video_feed_front" alt="Front camera stream" />
+                                    <div class="camera-overlay">
+                                        <div class="camera-info">
+                                            <span class="camera-time" id="frontCameraTime">--:--</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Back Camera -->
+                            <div class="camera-card">
+                                <div class="camera-feed">
+                                    <img id="backVideoFeed" src="http://127.0.0.1:8000/video_feed_back" alt="Back camera stream" />
+                                    <div class="camera-overlay">
+                                        <div class="camera-info">
+                                            <span class="camera-time" id="backCameraTime">--:--</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

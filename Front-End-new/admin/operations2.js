@@ -22,6 +22,7 @@ class Operations2Service {
         // Load data from API and set up polling
         this.loadData();
         this.setupRealTimeUpdates();
+        this.setupCameraTimeUpdates();
     }
 
     /**
@@ -253,6 +254,30 @@ class Operations2Service {
             this.updateSessionsDisplay();
             this.updateEventLog();
         }, 5000);
+    }
+
+    /**
+     * Set up camera time updates every second.
+     */
+    setupCameraTimeUpdates() {
+        const updateTime = () => {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('ar-SA', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            const frontTime = document.getElementById('frontCameraTime');
+            const backTime = document.getElementById('backCameraTime');
+            
+            if (frontTime) frontTime.textContent = timeString;
+            if (backTime) backTime.textContent = timeString;
+        };
+        
+        // Update immediately and then every second
+        updateTime();
+        setInterval(updateTime, 1000);
     }
 }
 
