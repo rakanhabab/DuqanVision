@@ -365,6 +365,24 @@ def api_post_event(event: EventIn) -> Dict[str, str]:
         del event_log[:-100]
     return {"ok": True}
 
+@app.post("/admin/clear")
+def api_clear_all() -> Dict[str, Any]:
+    """Clear all sessions and event logs."""
+    # Use globals so we mutate the existing in-memory structures
+    global sessions_state, event_log
+
+    sessions_cleared = len(sessions_state)
+    events_cleared = len(event_log)
+
+    sessions_state.clear()
+    event_log.clear()
+
+    return {
+        "ok": True,
+        "sessions_cleared": sessions_cleared,
+        "events_cleared": events_cleared
+    }
+
 
 # Video feed globals and helpers
 _cap_lock = threading.Lock()
