@@ -51,8 +51,13 @@ class AuthService {
                 return
             }
 
-            // In a real app, you would hash and compare passwords
-            // For now, we'll just check if user exists
+            // Simple password check (stored in plaintext currently)
+            // TODO: Replace with secure hashing (e.g., bcrypt) on both signup and login
+            if (String(user.password || '').trim() !== password) {
+                this.showError('البريد الإلكتروني أو كلمة المرور غير صحيحة')
+                return
+            }
+
             this.showSuccess('تم تسجيل الدخول بنجاح!')
             
             // Store user info in localStorage for session management

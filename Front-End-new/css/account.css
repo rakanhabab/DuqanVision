@@ -104,3 +104,18 @@ body { direction: rtl; }
   }
 }
 
+/* Navbar adjustments for Account page: place back button on the left */
+.nav .wrap .cta {
+  margin-right: auto; /* push to far left in RTL */
+  margin-left: 0;
+}
+
+@media (max-width: 768px) {
+  .nav .wrap {
+    gap: 12px;
+  }
+  .nav .wrap .cta {
+    margin-right: auto;
+  }
+}
+
