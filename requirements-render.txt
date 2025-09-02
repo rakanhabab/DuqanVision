@@ -26,7 +26,8 @@ aiohttp==3.8.6
 
 # Database and Supabase
 supabase==2.4.0
-postgrest==1.1.1
+1
+
 
 # Data processing (essential for RAG)
 pandas==1.5.3
