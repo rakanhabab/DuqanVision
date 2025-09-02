@@ -25,14 +25,14 @@ aiohttp==3.9.3
 
 # Database and Supabase
 supabase==2.4.0
-postgrest==0.14.9
+postgrest==1.1.1
 
 # Data processing (essential for RAG)
-pandas==2.2.1
-numpy==1.26.4
+pandas==2.1.4
+numpy==1.24.3
 
 # Utility libraries
-rich==13.7.1
+rich==13.6.0
 click==8.1.7
 
 # Note: Computer vision dependencies (opencv-python, ultralytics) 
