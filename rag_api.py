@@ -13,15 +13,18 @@ sys.path.append('refactored_rag_system')
 from rag_system_refactored import RefactoredSupabaseRAG
 from config import RAGConfig
 
-# مفاتيح من config.env
+# Environment variables - will work with both local .env and Render environment
 from dotenv import load_dotenv
-load_dotenv("config.env")
+load_dotenv("config.env")  # Load local .env if exists
 
+# Get environment variables (prioritize Render environment variables)
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+# For Render deployment, these should be set as environment variables
 if not all([OPENAI_API_KEY, SUPABASE_URL, SUPABASE_KEY]):
-    raise RuntimeError("Missing environment variables")
+    raise RuntimeError("Missing required environment variables: OPENAI_API_KEY, SUPABASE_URL, SUPABASE_KEY")
 
 rag_system: Optional[RefactoredSupabaseRAG] = None
 
