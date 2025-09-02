@@ -7,7 +7,11 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from contextlib import asynccontextmanager
 
-from rag_system import SupabaseRAG, RAGConfig
+# Import the refactored RAG system
+import sys
+sys.path.append('refactored_rag_system')
+from rag_system_refactored import RefactoredSupabaseRAG
+from config import RAGConfig
 
 # مفاتيح من config.env
 from dotenv import load_dotenv
@@ -19,23 +23,29 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 if not all([OPENAI_API_KEY, SUPABASE_URL, SUPABASE_KEY]):
     raise RuntimeError("Missing environment variables")
 
-rag_system: Optional[SupabaseRAG] = None
+rag_system: Optional[RefactoredSupabaseRAG] = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global rag_system
     try:
-        rag_system = SupabaseRAG(RAGConfig(
+        config = RAGConfig(
             openai_api_key=OPENAI_API_KEY,
             supabase_url=SUPABASE_URL,
             supabase_key=SUPABASE_KEY
-        ))
-        print("✅ RAG system initialized")
+        )
+        rag_system = RefactoredSupabaseRAG(config)
+        print("✅ Refactored RAG system initialized successfully!")
+        print("📦 New features available:")
+        print("   - Modular design with separate services")
+        print("   - Configuration-based responses")
+        print("   - Per-user memory management")
+        print("   - New products: شيبس ليز, برينجلز باربكيو")
     except Exception as e:
         print(f"❌ Init error: {e}")
     yield
     rag_system = None
-    print("🛑 RAG system stopped")
+    print("🛑 Refactored RAG system stopped")
 
 app = FastAPI(lifespan=lifespan)
 
@@ -60,7 +70,21 @@ class DocumentRequest(BaseModel):
 # Routes
 @app.get("/")
 async def root():
-    return {"status": "running", "version": "1.1.0"}
+    return {
+        "status": "running", 
+        "version": "2.0.0",
+        "system": "refactored_rag",
+        "features": [
+            "modular_design",
+            "configuration_based",
+            "per_user_memory",
+            "new_products"
+        ],
+        "new_products": [
+            "شيبس ليز (Lays_chips)",
+            "برينجلز باربكيو (pringles_barbeque)"
+        ]
+    }
 
 @app.options("/ask")
 async def options_ask():
@@ -80,9 +104,9 @@ async def ask(req: QuestionRequest):
         
         # Clean and normalize the question
         question = req.question.strip()
-        print(f"Received question: '{question}'")
-        print(f"User ID: {req.user_id}")
-        print(f"User Name: {req.user_name}")
+        print(f"🔍 Processing question: '{question}'")
+        print(f"👤 User ID: {req.user_id}")
+        print(f"📝 User Name: {req.user_name}")
         
         # Check if RAG system is initialized
         if not rag_system:
@@ -93,7 +117,11 @@ async def ask(req: QuestionRequest):
                 "timestamp": datetime.now().isoformat()
             }, status_code=503)
         
+        # Use the new refactored system
         result = await rag_system.ask_question(question, req.user_id, req.user_name)
+        
+        print(f"✅ Response source: {result['source']}")
+        print(f"📊 Confidence: {result['confidence']}")
         
         return JSONResponse(content={
             "answer": result["answer"],
@@ -115,10 +143,12 @@ async def ask(req: QuestionRequest):
 @app.get("/products")
 async def get_products():
     try:
-        data = await rag_system.load_database_data()
+        products = await rag_system.db_service.get_products()
+        formatted = rag_system.smart_service.format_products(products)
         return JSONResponse(content={
-            "products": data["products"],
-            "formatted": rag_system.format_products(data["products"]),
+            "products": products,
+            "formatted": formatted,
+            "count": len(products),
             "timestamp": datetime.now().isoformat()
         })
     except Exception as e:
@@ -127,10 +157,12 @@ async def get_products():
 @app.get("/branches")
 async def get_branches():
     try:
-        data = await rag_system.load_database_data()
+        branches = await rag_system.db_service.get_branches()
+        formatted = rag_system.smart_service.format_branches(branches)
         return JSONResponse(content={
-            "branches": data["branches"],
-            "formatted": rag_system.format_branches(data["branches"]),
+            "branches": branches,
+            "formatted": formatted,
+            "count": len(branches),
             "timestamp": datetime.now().isoformat()
         })
     except Exception as e:
@@ -139,11 +171,13 @@ async def get_branches():
 @app.get("/invoices/{user_id}")
 async def get_user_invoices(user_id: str):
     try:
-        data = await rag_system.load_database_data(user_id)
+        invoices = await rag_system.db_service.get_invoices(user_id)
+        formatted = rag_system.smart_service.format_invoices(invoices)
         return JSONResponse(content={
-            "invoices": data["invoices"],
-            "formatted": rag_system.format_invoices(data["invoices"]),
+            "invoices": invoices,
+            "formatted": formatted,
             "user_id": user_id,
+            "count": len(invoices),
             "timestamp": datetime.now().isoformat()
         })
     except Exception as e:

@@ -11,10 +11,10 @@ import os
 load_dotenv("config.env")
 
 def main():
-    print("🚀 Starting RAG API Server...")
+    print("🚀 Starting Refactored RAG API Server...")
     print("📍 Server will run on: http://localhost:8001")
     print("📝 Press Ctrl+C to stop the server")
-    print("-" * 50)
+    print("=" * 60)
     
     # Check environment variables
     required_vars = ["OPENAI_API_KEY", "SUPABASE_URL", "SUPABASE_KEY"]
@@ -30,6 +30,12 @@ def main():
         return
     
     print("✅ Environment variables loaded successfully")
+    print("🆕 New Features Available:")
+    print("   📦 Modular design with separate services")
+    print("   ⚙️  Configuration-based responses")
+    print("   🧠 Per-user memory management")
+    print("   🆕 New products: شيبس ليز, برينجلز باربكيو")
+    print("=" * 60)
     
     # Start the server
     uvicorn.run(
