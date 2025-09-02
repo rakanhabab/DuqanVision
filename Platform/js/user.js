@@ -1443,11 +1443,11 @@ function setupChat() {
                 const errorText = await response.text();
                 console.error('RAG API error:', response.status, response.statusText);
                 console.error('Error details:', errorText);
-                addMessage(`عذراً، حدث خطأ في الاتصال (${response.status}). تأكد من أن الخادم يعمل على المنفذ 8001.`, 'bot');
+                addMessage(`عذراً، حدث خطأ في الاتصال (${response.status}). يرجى المحاولة مرة أخرى لاحقاً.`, 'bot');
             }
         } catch (error) {
             console.error('Error calling RAG API:', error);
-            addMessage('عذراً، حدث خطأ في الاتصال. تأكد من أن الخادم يعمل على المنفذ 8001.', 'bot');
+            addMessage('عذراً، حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى لاحقاً.', 'bot');
         }
     }
 
