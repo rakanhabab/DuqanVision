@@ -1,4 +1,4 @@
-# 🏪 TuwaiqPick - Smart Retail Management System
+# 🏪 DUQANVISION - Smart Retail Management System
 
 A comprehensive retail management system with AI-powered features, QR code tracking, and real-time inventory management. Built with modern web technologies and integrated with Supabase for robust data management.
 
@@ -29,57 +29,50 @@ A comprehensive retail management system with AI-powered features, QR code track
 ## 🏗️ Project Structure
 
 ```
-TuwaiqPick/
-├── Front-End-new/          # Main frontend application
-│   ├── admin/              # Admin dashboard pages (fully DB integrated)
-│   │   ├── dashboard.html  # Analytics dashboard
-│   │   ├── operations.html # Live operations monitoring
-│   │   ├── inventory.html  # Inventory management
-│   │   ├── branches.html   # Branch management
-│   │   └── tickets.html    # Support ticket management
-│   ├── pages/              # User-facing pages
-│   │   ├── index.html      # Landing page
-│   │   ├── login.html      # Authentication
-│   │   ├── user.html       # User dashboard
-│   │   ├── account.html    # User profile management
-│   │   └── ...             # Other user pages
-│   ├── css/                # Stylesheets
-│   ├── js/                 # JavaScript modules (ES6)
-│   │   ├── database.js     # Supabase integration
-│   │   ├── auth.js         # Authentication service
-│   │   └── ...             # Page-specific services
-│   ├── img/                # Images and assets
-│   └── database_schema.md  # Database documentation
-├── Track-Model-with-QR/    # QR tracking system
-├── rag_api.py             # RAG API server
-├── rag_system.py          # RAG system implementation
-├── start_server.py        # Server startup script
-├── requirements.txt       # Python dependencies
-├── config.env.example     # Environment configuration template
-└── yolov8n.pt            # YOLO model weights
+DuqanVision/
+├── Front-End-new/              # Main frontend (static HTML/CSS/JS)
+│   ├── admin/                  # Admin dashboard (fully Supabase-integrated)
+│   │   ├── dashboard.html
+│   │   ├── operations.html
+│   │   ├── inventory.html
+│   │   ├── branches.html
+│   │   └── tickets.html
+│   ├── pages/                  # User-facing pages (landing, auth, user, ...)
+│   ├── js/                     # ES6 modules (e.g., database.js, auth.js)
+│   ├── css/                    # Stylesheets
+│   └── database_schema.md      # Database documentation
+├── refactored_rag_system/      # Modular RAG implementation
+│   ├── rag_system_refactored.py
+│   ├── rag_service.py
+│   ├── db_service.py
+│   ├── smart_service.py
+│   ├── semantic_service.py
+│   └── config.py
+├── Track-Model-with-QR/        # QR / YOLO tracking utilities
+├── rag_api.py                   # FastAPI app entrypoint for RAG
+├── start_server.py              # Helper script to run API with uvicorn
+├── requirements.txt             # Python runtime dependencies
+└── yolov8n.pt                   # YOLO model weights
 ```
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Python 3.8+
-- Node.js 14+ (optional, for development)
-- Supabase account
+- Python 3.9+
+- Node.js 16+ (optional, for static server tooling only)
+- Supabase account (URL + anon key)
 - OpenAI API key
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/rakanhabab/TuwaiqPick.git
-cd TuwaiqPick
+git clone <your-repo-url>.git
+cd DuqanVision
 ```
 
 ### 2. Set Up Environment
 ```bash
-# Copy environment template
-cp config.env.example config.env
-
-# Edit config.env with your credentials
-# Add your OpenAI API key, Supabase URL, and Supabase key
+# Create a config.env file in the project root and add your secrets
+# (see the Environment Variables section below)
 ```
 
 ### 3. Install Dependencies
@@ -92,21 +85,20 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 4. Start the Server
+### 4. Start the API Server
 ```bash
-# Start the RAG API server
+# Start the RAG API server (FastAPI + Uvicorn)
 python start_server.py
 ```
 
-### 5. Open the Application
-- Use Live Server in VS Code, or
-- Run `python -m http.server` in the Front-End-new directory
-- Open `http://localhost:5500/pages/index.html` in your browser
+### 5. Serve the Frontend
+- Option A: From `Front-End-new/admin`, run `python server.py` and open the printed URLs
+- Option B: Use any static server (e.g., VS Code Live Server) and open `Front-End-new/pages/index.html`
 
 ## 🔧 Configuration
 
 ### Environment Variables
-Create a `config.env` file with the following variables:
+Create a `config.env` file in the project root with the following variables:
 
 ```env
 # OpenAI Configuration
@@ -116,7 +108,7 @@ OPENAI_API_KEY=your_openai_api_key_here
 SUPABASE_URL=your_supabase_url_here
 SUPABASE_KEY=your_supabase_anon_key_here
 
-# Server Configuration
+# Optional server configuration
 HOST=0.0.0.0
 PORT=8001
 ```
@@ -165,7 +157,7 @@ cd Front-End-new
 ```
 
 ### Backend Development
-The backend uses FastAPI for the RAG system:
+The backend uses FastAPI for the RAG system (see `rag_api.py` and `refactored_rag_system/`):
 
 ```bash
 # Start development server
