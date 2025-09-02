@@ -23,14 +23,10 @@ services:
         sync: false
       - key: HOST
         value: 0.0.0.0
-      - key: PORT
-        value: 8000
       - key: DEBUG
         value: false
       - key: API_HOST
         value: 0.0.0.0
-      - key: API_PORT
-        value: 8000
       - key: ALLOWED_ORIGINS
         value: "*"
       - key: MODEL_NAME
