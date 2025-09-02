@@ -160,117 +160,99 @@
                                  </div>
                              </div>
                              <div class="charts-row">
-                                 <div class="chart-container">
-                                     <h4>حصة المدفوعات النقدية والإلكترونية للأفراد</h4>
-                                     <div class="pie-chart">
-                                         <svg viewBox="0 0 200 200" class="pie-svg">
-                                             <!-- Cash slice (35%) -->
-                                             <circle cx="100" cy="100" r="80" fill="none" stroke="#f97316" stroke-width="40" 
-                                                     stroke-dasharray="219.8 502.4" stroke-dashoffset="0" class="pie-slice cash-slice">
-                                             </circle>
-                                             <!-- Debit Card slice (45%) -->
-                                             <circle cx="100" cy="100" r="80" fill="none" stroke="#6366f1" stroke-width="40" 
-                                                     stroke-dasharray="452.2 502.4" stroke-dashoffset="-219.8" class="pie-slice debit-slice">
-                                             </circle>
-                                             <!-- Credit Card slice (12%) -->
-                                             <circle cx="100" cy="100" r="80" fill="none" stroke="#10b981" stroke-width="40" 
-                                                     stroke-dasharray="120.6 502.4" stroke-dashoffset="-672" class="pie-slice credit-slice">
-                                             </circle>
-                                             <!-- E-Wallet slice (4%) -->
-                                             <circle cx="100" cy="100" r="80" fill="none" stroke="#f59e0b" stroke-width="40" 
-                                                     stroke-dasharray="40.2 502.4" stroke-dashoffset="-792.6" class="pie-slice wallet-slice">
-                                             </circle>
-                                             <!-- Other slice (4%) -->
-                                             <circle cx="100" cy="100" r="80" fill="none" stroke="#8b5cf6" stroke-width="40" 
-                                                     stroke-dasharray="40.2 502.4" stroke-dashoffset="-832.8" class="pie-slice other-slice">
-                                             </circle>
-                                             <!-- Center text -->
-                                             <text x="100" y="95" text-anchor="middle" class="pie-center-text">45%</text>
-                                             <text x="100" y="110" text-anchor="middle" class="pie-center-subtext">بطاقة مدى</text>
-                                         </svg>
+                             <div class="chart-container">
+                                 <h4>حصة المدفوعات النقدية والإلكترونية للأفراد</h4>
+                                     <p class="chart-subtitle">في قطاع تموين الأغذية</p>
+                                     <div class="pie-chart-wrapper">
+                                         <div class="pie-chart" id="pie-chart">
+                                             <!-- Plotly chart will be rendered here -->
+                                 </div>
+                                 <div class="pie-legend">
+                                     <div class="legend-item">
+                                         <span class="legend-color cash"></span>
+                                                 <span>نقدي</span>
                                      </div>
-                                     <div class="pie-legend">
-                                         <div class="legend-item">
-                                             <span class="legend-color cash"></span>
-                                             <span>نقدي 35%</span>
-                                         </div>
-                                         <div class="legend-item">
-                                             <span class="legend-color debit"></span>
-                                             <span>بطاقة مدى 45%</span>
-                                         </div>
-                                         <div class="legend-item">
-                                             <span class="legend-color credit"></span>
-                                             <span>بطاقة ائتمان 12%</span>
-                                         </div>
-                                         <div class="legend-item">
-                                             <span class="legend-color wallet"></span>
-                                             <span>محفظة إلكترونية 4%</span>
-                                         </div>
-                                         <div class="legend-item">
-                                             <span class="legend-color other"></span>
-                                             <span>أخرى 4%</span>
-                                         </div>
+                                     <div class="legend-item">
+                                         <span class="legend-color debit"></span>
+                                                 <span>بطاقة ائتمان</span>
+                                     </div>
+                                     <div class="legend-item">
+                                         <span class="legend-color credit"></span>
+                                                 <span>بطاقة مدى</span>
+                                     </div>
+                                     <div class="legend-item">
+                                         <span class="legend-color wallet"></span>
+                                                 <span>محفظة رقمية</span>
+                                     </div>
+                                     <div class="legend-item">
+                                         <span class="legend-color other"></span>
+                                                 <span>أخرى</span>
+                                             </div>
                                      </div>
                                  </div>
-                                 
-                                 <!-- Stacked Bar Chart -->
+                             </div>
+                             
+                             <!-- Stacked Bar Chart -->
                                  <div class="chart-container">
                                      <h4>تطور الاعتماد على المدفوعات غير النقدية</h4>
-                                     <div class="stacked-bars">
-                                         <div class="bar-group">
-                                             <div class="bar-label">2019</div>
-                                             <div class="stacked-bar">
-                                                 <div class="bar-segment noncash" style="width: 36%"></div>
-                                                 <div class="bar-segment cash" style="width: 64%"></div>
+                                     <div class="stacked-bar-container">
+                                         <h5>النسبة المئوية للمدفوعات</h5>
+                                         <div class="stacked-bars">
+                                             <div class="bar-group">
+                                                 <span class="bar-label">2019</span>
+                                                 <div class="stacked-bar">
+                                                     <div class="bar-segment noncash" style="width: 36%"></div>
+                                                     <div class="bar-segment cash" style="width: 64%"></div>
+                                                 </div>
+                                                 <div class="bar-values">
+                                                     <span class="noncash-value">36%</span>
+                                                     <span class="cash-value">64%</span>
+                                                 </div>
                                              </div>
-                                             <div class="bar-values">
-                                                 <span class="noncash-value">36%</span>
-                                                 <span class="cash-value">64%</span>
+                                             <div class="bar-group">
+                                                 <span class="bar-label">2021</span>
+                                                 <div class="stacked-bar">
+                                                     <div class="bar-segment noncash" style="width: 57%"></div>
+                                                     <div class="bar-segment cash" style="width: 43%"></div>
+                                                 </div>
+                                                 <div class="bar-values">
+                                                     <span class="noncash-value">57%</span>
+                                                     <span class="cash-value">43%</span>
+                                                 </div>
+                                             </div>
+                                             <div class="bar-group">
+                                                 <span class="bar-label">2022</span>
+                                                 <div class="stacked-bar">
+                                                     <div class="bar-segment noncash" style="width: 62%"></div>
+                                                     <div class="bar-segment cash" style="width: 38%"></div>
+                                                 </div>
+                                                 <div class="bar-values">
+                                                     <span class="noncash-value">62%</span>
+                                                     <span class="cash-value">38%</span>
+                                                 </div>
+                                             </div>
+                                             <div class="bar-group">
+                                                 <span class="bar-label">2023</span>
+                                                 <div class="stacked-bar">
+                                                     <div class="bar-segment noncash" style="width: 70%"></div>
+                                                     <div class="bar-segment cash" style="width: 30%"></div>
+                                                 </div>
+                                                 <div class="bar-values">
+                                                     <span class="noncash-value">70%</span>
+                                                     <span class="cash-value">30%</span>
+                                                 </div>
                                              </div>
                                          </div>
-                                         <div class="bar-group">
-                                             <div class="bar-label">2021</div>
-                                             <div class="stacked-bar">
-                                                 <div class="bar-segment noncash" style="width: 57%"></div>
-                                                 <div class="bar-segment cash" style="width: 43%"></div>
+                                         <!-- Chart Legend -->
+                                         <div class="bar-chart-legend">
+                                             <div class="legend-item">
+                                                 <span class="legend-color noncash"></span>
+                                                 <span>مدفوعات رقمية</span>
                                              </div>
-                                             <div class="bar-values">
-                                                 <span class="noncash-value">57%</span>
-                                                 <span class="cash-value">43%</span>
+                                             <div class="legend-item">
+                                                 <span class="legend-color cash"></span>
+                                                 <span>مدفوعات نقدية</span>
                                              </div>
-                                         </div>
-                                         <div class="bar-group">
-                                             <div class="bar-label">2022</div>
-                                             <div class="stacked-bar">
-                                                 <div class="bar-segment noncash" style="width: 62%"></div>
-                                                 <div class="bar-segment cash" style="width: 38%"></div>
-                                             </div>
-                                             <div class="bar-values">
-                                                 <span class="noncash-value">62%</span>
-                                                 <span class="cash-value">38%</span>
-                                             </div>
-                                         </div>
-                                         <div class="bar-group">
-                                             <div class="bar-label">2023</div>
-                                             <div class="stacked-bar">
-                                                 <div class="bar-segment noncash" style="width: 70%"></div>
-                                                 <div class="bar-segment cash" style="width: 30%"></div>
-                                             </div>
-                                             <div class="bar-values">
-                                                 <span class="noncash-value">70%</span>
-                                                 <span class="cash-value">30%</span>
-                                             </div>
-                                         </div>
-                                     </div>
-                                     <!-- Chart Legend -->
-                                     <div class="bar-chart-legend">
-                                         <div class="legend-item">
-                                             <span class="legend-color noncash"></span>
-                                             <span>مدفوعات رقمية</span>
-                                         </div>
-                                         <div class="legend-item">
-                                             <span class="legend-color cash"></span>
-                                             <span>مدفوعات نقدية</span>
                                          </div>
                                      </div>
                                  </div>
@@ -1775,6 +1757,54 @@
                     toggle.textContent = '▲';
                 }
             }
+        });
+    </script>
+    
+    <!-- Plotly.js CDN -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    
+    <script>
+        // Initialize Plotly pie chart when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Pie chart data
+            const pieData = [
+                {
+                    values: [35, 45, 12, 4, 4],
+                    labels: ['نقدي', 'بطاقة ائتمان', 'بطاقة مدى', 'محفظة رقمية', 'أخرى'],
+                    type: 'pie',
+                    hole: 0.4,
+                    marker: {
+                        colors: ['#f97316', '#3b82f6', '#059669', '#dc2626', '#7c3aed']
+                    },
+                    textinfo: 'percent',
+                    textposition: 'inside',
+                    hoverinfo: 'label+percent',
+                    textfont: {
+                        size: 14,
+                        family: 'Cairo, sans-serif'
+                    }
+                }
+            ];
+            
+            const pieLayout = {
+                showlegend: false, // Hide built-in legend since we have custom one
+                margin: {
+                    t: 50,
+                    b: 20,
+                    l: 50,
+                    r: 50
+                },
+                height: 300, // Increased from 250 to 300
+                width: 300   // Increased from 250 to 300
+            };
+            
+            // Create the pie chart
+            Plotly.newPlot('pie-chart', pieData, pieLayout, {
+                displayModeBar: false,
+                responsive: true
+            });
+            
+
         });
     </script>
 </body>
