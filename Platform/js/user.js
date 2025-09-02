@@ -1418,7 +1418,7 @@ function setupChat() {
             
             
             // Call RAG API
-            const response = await fetch('http://localhost:8001/ask', {
+            const response = await fetch('https://duqanvision.onrender.com/ask', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1639,7 +1639,7 @@ function scrollToSection(sectionId) {
 // Test connection to RAG API
 async function testRAGConnection() {
     try {
-        const response = await fetch('http://localhost:8001/', {
+        const response = await fetch('https://duqanvision.onrender.com/', {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',

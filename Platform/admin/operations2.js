@@ -73,7 +73,7 @@ class Operations2Service {
      */
     async fetchSessions() {
         try {
-            const resp = await fetch('http://127.0.0.1:8000/sessions');
+            const resp = await fetch('https://duqanvision.onrender.com/sessions');
             if (!resp.ok) throw new Error('Failed to fetch sessions');
             const data = await resp.json();
             // Ensure data is an array
@@ -91,7 +91,7 @@ class Operations2Service {
      */
     async fetchEvents() {
         try {
-            const resp = await fetch('http://127.0.0.1:8000/events');
+            const resp = await fetch('https://duqanvision.onrender.com/events');
             if (!resp.ok) throw new Error('Failed to fetch events');
             const data = await resp.json();
             this.eventsData = Array.isArray(data) ? data : [];
