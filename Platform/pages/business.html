@@ -90,10 +90,10 @@
              <p class="section-sub">التقنيات التي يقوم عليها دكان فيجين</p>
                                                        <div class="technologies-slider">
                    <div class="tech-image active">
-                       <img src="../img/hardware_img.png" alt="التقنيات المستخدمة">
+                       <img src="../img/hardware_img.png" alt="التقنيات المستخدمة" class="tech-img">
                    </div>
                                       <div class="tech-image">
-                       <img src="../img/software_img.png" alt="التقنيات المستخدمة">
+                       <img src="../img/software_img.png" alt="التقنيات المستخدمة" class="tech-img">
                    </div>
                    <div class="slider-arrows">
                        <button class="arrow prev" onclick="changeSlide(-1)">&#10094;</button>
@@ -159,105 +159,118 @@
                                      <p>يستخدمون المدفوعات الرقمية ← يثبت أن السوق السعودي متجه بقوة نحو الاعتماد على الدفع غير النقدي</p>
                                  </div>
                              </div>
-                             <div class="chart-container">
-                                 <h4>حصة المدفوعات النقدية والإلكترونية للأفراد</h4>
-                                 <div class="pie-chart">
-                                     <svg viewBox="0 0 200 200" class="pie-svg">
-                                         <!-- Cash slice (35%) -->
-                                         <circle cx="100" cy="100" r="80" fill="none" stroke="#f97316" stroke-width="40" 
-                                                 stroke-dasharray="219.8 502.4" stroke-dashoffset="0" class="pie-slice cash-slice">
-                                         </circle>
-                                         <!-- Debit Card slice (45%) -->
-                                         <circle cx="100" cy="100" r="80" fill="none" stroke="#6366f1" stroke-width="40" 
-                                                 stroke-dasharray="452.2 502.4" stroke-dashoffset="-219.8" class="pie-slice debit-slice">
-                                         </circle>
-                                         <!-- Credit Card slice (12%) -->
-                                         <circle cx="100" cy="100" r="80" fill="none" stroke="#10b981" stroke-width="40" 
-                                                 stroke-dasharray="120.6 502.4" stroke-dashoffset="-672" class="pie-slice credit-slice">
-                                         </circle>
-                                         <!-- E-Wallet slice (4%) -->
-                                         <circle cx="100" cy="100" r="80" fill="none" stroke="#f59e0b" stroke-width="40" 
-                                                 stroke-dasharray="40.2 502.4" stroke-dashoffset="-792.6" class="pie-slice wallet-slice">
-                                         </circle>
-                                         <!-- Other slice (4%) -->
-                                         <circle cx="100" cy="100" r="80" fill="none" stroke="#8b5cf6" stroke-width="40" 
-                                                 stroke-dasharray="40.2 502.4" stroke-dashoffset="-832.8" class="pie-slice other-slice">
-                                         </circle>
-                                         <!-- Center text -->
-                                         <text x="100" y="95" text-anchor="middle" class="pie-center-text">45%</text>
-                                         <text x="100" y="110" text-anchor="middle" class="pie-center-subtext">بطاقة مدى</text>
-                                     </svg>
+                             <div class="charts-row">
+                                 <div class="chart-container">
+                                     <h4>حصة المدفوعات النقدية والإلكترونية للأفراد</h4>
+                                     <div class="pie-chart">
+                                         <svg viewBox="0 0 200 200" class="pie-svg">
+                                             <!-- Cash slice (35%) -->
+                                             <circle cx="100" cy="100" r="80" fill="none" stroke="#f97316" stroke-width="40" 
+                                                     stroke-dasharray="219.8 502.4" stroke-dashoffset="0" class="pie-slice cash-slice">
+                                             </circle>
+                                             <!-- Debit Card slice (45%) -->
+                                             <circle cx="100" cy="100" r="80" fill="none" stroke="#6366f1" stroke-width="40" 
+                                                     stroke-dasharray="452.2 502.4" stroke-dashoffset="-219.8" class="pie-slice debit-slice">
+                                             </circle>
+                                             <!-- Credit Card slice (12%) -->
+                                             <circle cx="100" cy="100" r="80" fill="none" stroke="#10b981" stroke-width="40" 
+                                                     stroke-dasharray="120.6 502.4" stroke-dashoffset="-672" class="pie-slice credit-slice">
+                                             </circle>
+                                             <!-- E-Wallet slice (4%) -->
+                                             <circle cx="100" cy="100" r="80" fill="none" stroke="#f59e0b" stroke-width="40" 
+                                                     stroke-dasharray="40.2 502.4" stroke-dashoffset="-792.6" class="pie-slice wallet-slice">
+                                             </circle>
+                                             <!-- Other slice (4%) -->
+                                             <circle cx="100" cy="100" r="80" fill="none" stroke="#8b5cf6" stroke-width="40" 
+                                                     stroke-dasharray="40.2 502.4" stroke-dashoffset="-832.8" class="pie-slice other-slice">
+                                             </circle>
+                                             <!-- Center text -->
+                                             <text x="100" y="95" text-anchor="middle" class="pie-center-text">45%</text>
+                                             <text x="100" y="110" text-anchor="middle" class="pie-center-subtext">بطاقة مدى</text>
+                                         </svg>
+                                     </div>
+                                     <div class="pie-legend">
+                                         <div class="legend-item">
+                                             <span class="legend-color cash"></span>
+                                             <span>نقدي 35%</span>
+                                         </div>
+                                         <div class="legend-item">
+                                             <span class="legend-color debit"></span>
+                                             <span>بطاقة مدى 45%</span>
+                                         </div>
+                                         <div class="legend-item">
+                                             <span class="legend-color credit"></span>
+                                             <span>بطاقة ائتمان 12%</span>
+                                         </div>
+                                         <div class="legend-item">
+                                             <span class="legend-color wallet"></span>
+                                             <span>محفظة إلكترونية 4%</span>
+                                         </div>
+                                         <div class="legend-item">
+                                             <span class="legend-color other"></span>
+                                             <span>أخرى 4%</span>
+                                         </div>
+                                     </div>
                                  </div>
-                                 <div class="pie-legend">
-                                     <div class="legend-item">
-                                         <span class="legend-color cash"></span>
-                                         <span>نقدي 35%</span>
-                                     </div>
-                                     <div class="legend-item">
-                                         <span class="legend-color debit"></span>
-                                         <span>بطاقة مدى 45%</span>
-                                     </div>
-                                     <div class="legend-item">
-                                         <span class="legend-color credit"></span>
-                                         <span>بطاقة ائتمان 12%</span>
-                                     </div>
-                                     <div class="legend-item">
-                                         <span class="legend-color wallet"></span>
-                                         <span>محفظة إلكترونية 4%</span>
-                                     </div>
-                                     <div class="legend-item">
-                                         <span class="legend-color other"></span>
-                                         <span>أخرى 4%</span>
-                                     </div>
-                                 </div>
-                             </div>
-                             
-                             <!-- Stacked Bar Chart -->
-                             <div class="stacked-bar-container">
-                                 <h5>تطور الاعتماد على المدفوعات غير النقدية</h5>
-                                 <div class="stacked-bars">
-                                     <div class="bar-group">
-                                         <div class="bar-label">2019</div>
-                                         <div class="stacked-bar">
-                                             <div class="bar-segment noncash" style="width: 36%"></div>
-                                             <div class="bar-segment cash" style="width: 64%"></div>
+                                 
+                                 <!-- Stacked Bar Chart -->
+                                 <div class="chart-container">
+                                     <h4>تطور الاعتماد على المدفوعات غير النقدية</h4>
+                                     <div class="stacked-bars">
+                                         <div class="bar-group">
+                                             <div class="bar-label">2019</div>
+                                             <div class="stacked-bar">
+                                                 <div class="bar-segment noncash" style="width: 36%"></div>
+                                                 <div class="bar-segment cash" style="width: 64%"></div>
+                                             </div>
+                                             <div class="bar-values">
+                                                 <span class="noncash-value">36%</span>
+                                                 <span class="cash-value">64%</span>
+                                             </div>
                                          </div>
-                                         <div class="bar-values">
-                                             <span class="noncash-value">36%</span>
-                                             <span class="cash-value">64%</span>
+                                         <div class="bar-group">
+                                             <div class="bar-label">2021</div>
+                                             <div class="stacked-bar">
+                                                 <div class="bar-segment noncash" style="width: 57%"></div>
+                                                 <div class="bar-segment cash" style="width: 43%"></div>
+                                             </div>
+                                             <div class="bar-values">
+                                                 <span class="noncash-value">57%</span>
+                                                 <span class="cash-value">43%</span>
+                                             </div>
                                          </div>
-                                     </div>
-                                     <div class="bar-group">
-                                         <div class="bar-label">2021</div>
-                                         <div class="stacked-bar">
-                                             <div class="bar-segment noncash" style="width: 57%"></div>
-                                             <div class="bar-segment cash" style="width: 43%"></div>
+                                         <div class="bar-group">
+                                             <div class="bar-label">2022</div>
+                                             <div class="stacked-bar">
+                                                 <div class="bar-segment noncash" style="width: 62%"></div>
+                                                 <div class="bar-segment cash" style="width: 38%"></div>
+                                             </div>
+                                             <div class="bar-values">
+                                                 <span class="noncash-value">62%</span>
+                                                 <span class="cash-value">38%</span>
+                                             </div>
                                          </div>
-                                         <div class="bar-values">
-                                             <span class="noncash-value">57%</span>
-                                             <span class="cash-value">43%</span>
-                                         </div>
-                                     </div>
-                                     <div class="bar-group">
-                                         <div class="bar-label">2022</div>
-                                         <div class="stacked-bar">
-                                             <div class="bar-segment noncash" style="width: 62%"></div>
-                                             <div class="bar-segment cash" style="width: 38%"></div>
-                                         </div>
-                                         <div class="bar-values">
-                                             <span class="noncash-value">62%</span>
-                                             <span class="cash-value">38%</span>
+                                         <div class="bar-group">
+                                             <div class="bar-label">2023</div>
+                                             <div class="stacked-bar">
+                                                 <div class="bar-segment noncash" style="width: 70%"></div>
+                                                 <div class="bar-segment cash" style="width: 30%"></div>
+                                             </div>
+                                             <div class="bar-values">
+                                                 <span class="noncash-value">70%</span>
+                                                 <span class="cash-value">30%</span>
+                                             </div>
                                          </div>
                                      </div>
-                                     <div class="bar-group">
-                                         <div class="bar-label">2023</div>
-                                         <div class="stacked-bar">
-                                             <div class="bar-segment noncash" style="width: 70%"></div>
-                                             <div class="bar-segment cash" style="width: 30%"></div>
+                                     <!-- Chart Legend -->
+                                     <div class="bar-chart-legend">
+                                         <div class="legend-item">
+                                             <span class="legend-color noncash"></span>
+                                             <span>مدفوعات رقمية</span>
                                          </div>
-                                         <div class="bar-values">
-                                             <span class="noncash-value">70%</span>
-                                             <span class="cash-value">30%</span>
+                                         <div class="legend-item">
+                                             <span class="legend-color cash"></span>
+                                             <span>مدفوعات نقدية</span>
                                          </div>
                                      </div>
                                  </div>
@@ -411,7 +424,7 @@
      <!-- Footer -->
     <footer>
         <div class="wrap">
-            <div>© 2024 دكان فيجين. جميع الحقوق محفوظة.</div>
+                            <div>© 2025 دكان فيجين. جميع الحقوق محفوظة.</div>
             <div>
                 <a href="#privacy">الخصوصية</a> |
                 <a href="#terms">الشروط</a> |
@@ -1692,6 +1705,78 @@
              }
          }
     </style>
+    
+    <script>
+        // Toggle panel visibility
+        function togglePanel(panelId) {
+            const panel = document.getElementById(panelId);
+            const toggle = panel.previousElementSibling.querySelector('.panel-toggle');
+            
+            if (panel.classList.contains('active')) {
+                panel.classList.remove('active');
+                toggle.textContent = '▼';
+            } else {
+                panel.classList.add('active');
+                toggle.textContent = '▲';
+            }
+        }
+        
+        // Technologies slider
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.tech-image');
+        
+        function changeSlide(direction) {
+            if (slides.length === 0) return;
+            
+            // Hide current slide
+            slides[currentSlide].classList.remove('active');
+            
+            // Calculate new slide index
+            currentSlide = (currentSlide + direction + slides.length) % slides.length;
+            
+            // Show new slide
+            slides[currentSlide].classList.add('active');
+            
+            console.log('Current slide:', currentSlide, 'Total slides:', slides.length);
+        }
+        
+        // Auto-advance slides every 5 seconds
+        let slideInterval = setInterval(() => {
+            changeSlide(1);
+        }, 5000);
+        
+        // Pause auto-advance on hover
+        const slider = document.querySelector('.technologies-slider');
+        if (slider) {
+            slider.addEventListener('mouseenter', () => {
+                clearInterval(slideInterval);
+            });
+            
+            slider.addEventListener('mouseleave', () => {
+                slideInterval = setInterval(() => {
+                    changeSlide(1);
+                }, 5000);
+                });
+        }
+        
+        // Initialize first panel as open and ensure first image is visible
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ensure first tech image is visible
+            if (slides.length > 0) {
+                slides[0].classList.add('active');
+                console.log('First image activated');
+            }
+            
+            const firstPanel = document.querySelector('.panel-content');
+            if (firstPanel) {
+                firstPanel.classList.add('active');
+                const toggle = firstPanel.previousElementSibling.querySelector('.panel-toggle');
+                if (toggle) {
+                    toggle.textContent = '▲';
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>
