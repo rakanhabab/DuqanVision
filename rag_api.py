@@ -8,10 +8,8 @@ from pydantic import BaseModel, Field
 from contextlib import asynccontextmanager
 
 # Import the refactored RAG system
-import sys
-sys.path.append('refactored_rag_system')
-from rag_system_refactored import RefactoredSupabaseRAG
-from config import RAGConfig
+from Rag_system.rag_system_refactored import RefactoredSupabaseRAG
+from Rag_system.config import RAGConfig
 
 # Environment variables - will work with both local .env and Render environment
 from dotenv import load_dotenv
