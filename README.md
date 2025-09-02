@@ -30,7 +30,7 @@ A comprehensive retail management system with AI-powered features, QR code track
 
 ```
 DuqanVision/
-├── Front-End-new/              # Main frontend (static HTML/CSS/JS)
+├── Platform/              # Main frontend (static HTML/CSS/JS)
 │   ├── admin/                  # Admin dashboard (fully Supabase-integrated)
 │   │   ├── dashboard.html
 │   │   ├── operations.html
@@ -41,7 +41,7 @@ DuqanVision/
 │   ├── js/                     # ES6 modules (e.g., database.js, auth.js)
 │   ├── css/                    # Stylesheets
 │   └── database_schema.md      # Database documentation
-├── refactored_rag_system/      # Modular RAG implementation
+├── Rag_system/      # Modular RAG implementation
 │   ├── rag_system_refactored.py
 │   ├── rag_service.py
 │   ├── db_service.py
@@ -263,3 +263,4 @@ For support and questions:
 ---
 
 **Built with ❤️ for Tuwaiq Bootcamp**
+
