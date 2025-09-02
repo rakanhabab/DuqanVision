@@ -5,7 +5,11 @@ import re
 from dotenv import load_dotenv
 
 # Load environment variables from config.env (one level up)
-load_dotenv("../config.env")
+# In deployment, this will be loaded from environment variables
+try:
+    load_dotenv("../config.env")
+except:
+    pass  # Environment variables will be set in Render
 
 @dataclass
 class RAGConfig:

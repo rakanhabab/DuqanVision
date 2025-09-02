@@ -1,12 +1,12 @@
 import asyncio
 import logging
 from typing import Dict, List, Optional, Any
-from config import RAGConfig
-from db_service import DatabaseService
-from smart_service import SmartResponseService
-from rag_service import RAGService
-from semantic_service import SemanticSearchService
-from router_service import RouterService
+from .config import RAGConfig
+from .db_service import DatabaseService
+from .smart_service import SmartResponseService
+from .rag_service import RAGService
+from .semantic_service import SemanticSearchService
+from .router_service import RouterService
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

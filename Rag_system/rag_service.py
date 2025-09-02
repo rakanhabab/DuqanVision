@@ -10,7 +10,7 @@ from langchain_community.vectorstores import SupabaseVectorStore
 from langchain.schema import Document
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
-from config import RAGConfig
+from .config import RAGConfig
 
 logger = logging.getLogger(__name__)
 
