@@ -297,6 +297,24 @@ def api_get_sessions() -> List[Dict[str, Any]]:
     """Return a list of all current sessions."""
     return list(sessions_state.values())
 
+@app.api_route("/admin/clear", methods=["GET", "POST"])
+@app.api_route("/admin/clear/", methods=["GET", "POST"])  # handle trailing slash
+def api_clear_all() -> Dict[str, Any]:
+    """Clear all sessions and event logs."""
+    # Use globals so we mutate the existing in-memory structures
+    global sessions_state, event_log
+
+    sessions_cleared = len(sessions_state)
+    events_cleared = len(event_log)
+
+    sessions_state.clear()
+    event_log.clear()
+
+    return {
+        "ok": True,
+        "sessions_cleared": sessions_cleared,
+        "events_cleared": events_cleared
+    }
 
 @app.post("/sessions/update")
 def api_update_session(update: SessionUpdate) -> Dict[str, Any]:
@@ -312,9 +330,25 @@ def api_update_session(update: SessionUpdate) -> Dict[str, Any]:
         "customerId": update.customer_id or sid,
         "customerName": update.customer_name or "",
         "status": "processing",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now().isoformat(),
         "items": []
     }
+    try:
+       conn = get_connection()
+       cur = conn.cursor()
+       cur.execute(
+           """
+           SELECT first_name
+           FROM users
+           WHERE id = %s
+           """,
+           (session["customerId"],)
+       )
+       row = cur.fetchone()
+       if row is not None:
+           session["customerName"] = row[0]
+    except Exception as e:
+        print(e)
     # Update identity
     if update.customer_id:
         session["customerId"] = update.customer_id
@@ -330,18 +364,34 @@ def api_update_session(update: SessionUpdate) -> Dict[str, Any]:
                 q = 0
             if q <= 0:
                 continue
+            try:
+                conn = get_connection()
+                cur = conn.cursor()
+                cur.execute(
+                    """
+                    SELECT price
+                    FROM products
+                    WHERE name = %s
+                    """,
+                    (name,)
+                )
+                row = cur.fetchone()
+                if row is not None:
+                    price = float(row[0])
+            except Exception as e:
+                productPrice = 0.0
             items.append({
                 "name": name,
                 "sku": name,
                 "quantity": q,
-                "price": 0.0
+                "price": price
             })
         session["items"] = items
     # Update status if provided
     if update.status:
         session["status"] = update.status
     # Always update timestamp
-    session["timestamp"] = datetime.utcnow().isoformat()
+    session["timestamp"] = datetime.now().isoformat()
     sessions_state[sid] = session
     return {"ok": True, "session": session}
 
@@ -384,44 +434,44 @@ def api_clear_all() -> Dict[str, Any]:
     }
 
 
-# Video feed globals and helpers
-_cap_lock = threading.Lock()
-_cap: cv2.VideoCapture | None = None
+# # Video feed globals and helpers
+# _cap_lock = threading.Lock()
+# _cap: cv2.VideoCapture | None = None
 
 
-def _get_cap() -> cv2.VideoCapture:
-    """Get or create a global VideoCapture object. Throws on failure."""
-    global _cap
-    with _cap_lock:
-        if _cap is None or not _cap.isOpened():
-            cap = cv2.VideoCapture(0)
-            if not cap.isOpened():
-                raise RuntimeError("Could not open camera for video feed")
-            _cap = cap
-        return _cap
+# def _get_cap() -> cv2.VideoCapture:
+#     """Get or create a global VideoCapture object. Throws on failure."""
+#     global _cap
+#     with _cap_lock:
+#         if _cap is None or not _cap.isOpened():
+#             cap = cv2.VideoCapture(0)
+#             if not cap.isOpened():
+#                 raise RuntimeError("Could not open camera for video feed")
+#             _cap = cap
+#         return _cap
 
 
-@app.get("/video_feed")
-def api_video_feed():
-    """Serve an MJPEG stream of frames from the default camera."""
-    def gen():
-        try:
-            cap = cv2.VideoCapture(1)
-        except Exception as exc:
-            # yield empty frames in error state to avoid connection drop
-            print(f"[video_feed] camera error: {exc}")
-            while True:
-                time.sleep(1.0)
-                yield b''
-        while True:
-            ok, frame = cap.read()
-            if not ok:
-                time.sleep(0.05)
-                continue
-            ret, buffer = cv2.imencode('.jpg', frame)
-            if not ret:
-                continue
-            frame_bytes = buffer.tobytes()
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-    return StreamingResponse(gen(), media_type='multipart/x-mixed-replace; boundary=frame')
+# @app.get("/video_feed")
+# def api_video_feed():
+#     """Serve an MJPEG stream of frames from the default camera."""
+#     def gen():
+#         try:
+#             cap = cv2.VideoCapture(1)
+#         except Exception as exc:
+#             # yield empty frames in error state to avoid connection drop
+#             print(f"[video_feed] camera error: {exc}")
+#             while True:
+#                 time.sleep(1.0)
+#                 yield b''
+#         while True:
+#             ok, frame = cap.read()
+#             if not ok:
+#                 time.sleep(0.05)
+#                 continue
+#             ret, buffer = cv2.imencode('.jpg', frame)
+#             if not ret:
+#                 continue
+#             frame_bytes = buffer.tobytes()
+#             yield (b'--frame\r\n'
+#                    b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+#     return StreamingResponse(gen(), media_type='multipart/x-mixed-replace; boundary=frame')

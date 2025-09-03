@@ -168,7 +168,7 @@ class Operations2Service {
         card.innerHTML = `
             <div class="session-header">
                 <div class="session-customer-info">
-                    <h4>customer_id: ${session.customerId || session.id}</h4>
+                    <h4>customer_id: ${session.customerName || session.customerId || session.id}</h4>
                     <div class="session-timestamp">session_timestamp: ${this.formatTimestamp(session.timestamp)}</div>
                 </div>
                     <div class="session-status ${status}">status: ${status}</div>
