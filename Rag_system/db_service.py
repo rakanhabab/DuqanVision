@@ -1,12 +1,28 @@
 from typing import Dict, List, Any, Optional
 from supabase import create_client, Client
 import logging
+import os
+import httpx
 
 logger = logging.getLogger(__name__)
 
 class DatabaseService:
     def __init__(self, supabase_url: str, supabase_key: str):
-        self.supabase: Client = create_client(supabase_url, supabase_key)
+        proxies = {}
+        http_proxy = os.getenv("HTTP_PROXY")
+        https_proxy = os.getenv("HTTPS_PROXY")
+        if http_proxy:
+            proxies["http://"] = http_proxy
+        if https_proxy:
+            proxies["https://"] = https_proxy
+
+        http_client = httpx.Client(proxies=proxies or None, timeout=30.0)
+
+        self.supabase: Client = create_client(
+            supabase_url,
+            supabase_key,
+            options={"http_client": http_client},
+        )
         logger.info("Database service initialized")
 
     async def get_products(self) -> List[Dict[str, Any]]:
