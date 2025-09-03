@@ -262,7 +262,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Generate user QR on load with actual user ID
   const userId = getCurrentUserId();
   const username = getCurrentUsername();
-  showUserQR(userId + "," + username);
+  showUserQR(userId);
   // Buttons
   const simulateBtn = document.getElementById('simulateScan');
   const backDashBtn = document.getElementById('backDash');
