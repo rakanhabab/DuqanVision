@@ -51,6 +51,25 @@ async def lifespan(app: FastAPI):
         print("   - Per-user memory management")
         print("   - New products: شيبس ليز, برينجلز باربكيو")
     except Exception as e:
+        # Print helpful diagnostics to identify the exact source of the error
+        try:
+            import supabase as _supabase
+            import httpx as _httpx
+            import openai as _openai
+            import postgrest as _postgrest
+            print(
+                "📦 Versions =>",
+                {
+                    "supabase": getattr(_supabase, "__version__", "unknown"),
+                    "postgrest": getattr(_postgrest, "__version__", "unknown"),
+                    "httpx": getattr(_httpx, "__version__", "unknown"),
+                    "openai": getattr(_openai, "__version__", "unknown"),
+                },
+            )
+        except Exception:
+            pass
+        import traceback
+        traceback.print_exc()
         print(f"❌ Init error: {e}")
     yield
     rag_system = None
