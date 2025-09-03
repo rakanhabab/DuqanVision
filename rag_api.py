@@ -30,6 +30,14 @@ rag_system: Optional[RefactoredSupabaseRAG] = None
 async def lifespan(app: FastAPI):
     global rag_system
     try:
+        # Ensure no proxy env vars leak into HTTP clients used by dependencies
+        for key in [
+            "HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "NO_PROXY",
+            "http_proxy", "https_proxy", "all_proxy", "no_proxy",
+        ]:
+            if key in os.environ:
+                os.environ.pop(key, None)
+
         config = RAGConfig(
             openai_api_key=OPENAI_API_KEY,
             supabase_url=SUPABASE_URL,
