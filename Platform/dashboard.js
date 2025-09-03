@@ -75,15 +75,15 @@ window.dashboard = {
       const currentUserStr = localStorage.getItem('current_user');
       if (!currentUserStr) {
         // Show message that user needs to login
-        const visitsEl = document.getElementById('kVisits');
-        const spendEl = document.getElementById('kSpend');
-        const avgEl = document.getElementById('kAvg');
-        const topEl = document.getElementById('kTop');
+        const netSalesEl = document.getElementById('netSalesValue');
+        const ordersEl = document.getElementById('ordersValue');
+        const aovEl = document.getElementById('aovValue');
+        const paidRateEl = document.getElementById('paidRateValue');
 
-        if (visitsEl) visitsEl.textContent = '—';
-        if (spendEl) spendEl.textContent = '—';
-        if (avgEl) avgEl.textContent = '—';
-        if (topEl) topEl.textContent = 'يرجى تسجيل الدخول';
+        if (netSalesEl) netSalesEl.textContent = '-- ر.س';
+        if (ordersEl) ordersEl.textContent = '--';
+        if (aovEl) aovEl.textContent = '-- ر.س';
+        if (paidRateEl) paidRateEl.textContent = '--%';
 
         // Show message in console for debugging
         console.log('⚠️ No user logged in. Please login to see dashboard data.');
@@ -95,38 +95,48 @@ window.dashboard = {
       // Get user data and invoices from database
       const [userData, invoices] = await Promise.all([
         db.supabase.from('users').select('num_visits, owed_balance').eq('id', currentUser.id).single(),
-        db.supabase.from('invoices').select('total_amount').eq('user_id', currentUser.id)
+        db.supabase.from('invoices').select('total_amount, status').eq('user_id', currentUser.id)
       ]);
 
-      const visitsEl = document.getElementById('kVisits');
-      const spendEl = document.getElementById('kSpend');
-      const avgEl = document.getElementById('kAvg');
-      const topEl = document.getElementById('kTop');
+      const netSalesEl = document.getElementById('netSalesValue');
+      const ordersEl = document.getElementById('ordersValue');
+      const aovEl = document.getElementById('aovValue');
+      const paidRateEl = document.getElementById('paidRateValue');
 
       // Calculate KPIs from real data
-      const visits = userData.data?.num_visits || 0;
-      const totalSpend = invoices.data?.reduce((sum, invoice) => sum + (invoice.total_amount || 0), 0) || 0;
-      const avgSpend = invoices.data?.length > 0 ? totalSpend / invoices.data.length : 0;
+      const totalOrders = invoices.data?.length || 0;
+      const totalSales = invoices.data?.reduce((sum, invoice) => sum + (invoice.total_amount || 0), 0) || 0;
+      const avgOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0;
+      
+      // Calculate paid rate (assuming invoices with status 'paid' are paid)
+      const paidInvoices = invoices.data?.filter(invoice => invoice.status === 'paid') || [];
+      const paidRate = totalOrders > 0 ? (paidInvoices.length / totalOrders) * 100 : 0;
 
-      if (visitsEl) visitsEl.textContent = visits;
-      if (spendEl) spendEl.textContent = db.formatCurrency ? db.formatCurrency(totalSpend) : `${totalSpend} ر.س`;
-      if (avgEl) avgEl.textContent = db.formatCurrency ? db.formatCurrency(avgSpend) : `${avgSpend} ر.س`;
-      if (topEl) topEl.textContent = 'الرياض - دكان فيجين';
+      // Update UI elements
+      if (netSalesEl) netSalesEl.textContent = db.formatCurrency ? db.formatCurrency(totalSales) : `${totalSales} ر.س`;
+      if (ordersEl) ordersEl.textContent = totalOrders;
+      if (aovEl) aovEl.textContent = db.formatCurrency ? db.formatCurrency(avgOrderValue) : `${avgOrderValue} ر.س`;
+      if (paidRateEl) paidRateEl.textContent = `${paidRate.toFixed(1)}%`;
 
-      console.log('✅ KPIs loaded successfully:', { visits, totalSpend, avgSpend });
+      console.log('✅ KPIs loaded successfully:', { 
+        totalOrders, 
+        totalSales, 
+        avgOrderValue, 
+        paidRate 
+      });
     } catch (error) {
       console.error('❌ Error loading KPIs:', error);
       
       // Show error message to user
-      const visitsEl = document.getElementById('kVisits');
-      const spendEl = document.getElementById('kSpend');
-      const avgEl = document.getElementById('kAvg');
-      const topEl = document.getElementById('kTop');
+      const netSalesEl = document.getElementById('netSalesValue');
+      const ordersEl = document.getElementById('ordersValue');
+      const aovEl = document.getElementById('aovValue');
+      const paidRateEl = document.getElementById('paidRateValue');
 
-      if (visitsEl) visitsEl.textContent = 'خطأ';
-      if (spendEl) spendEl.textContent = 'خطأ';
-      if (avgEl) avgEl.textContent = 'خطأ';
-      if (topEl) topEl.textContent = 'خطأ في التحميل';
+      if (netSalesEl) netSalesEl.textContent = 'خطأ';
+      if (ordersEl) ordersEl.textContent = 'خطأ';
+      if (aovEl) aovEl.textContent = 'خطأ';
+      if (paidRateEl) paidRateEl.textContent = 'خطأ';
     }
   },
 
