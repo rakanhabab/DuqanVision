@@ -1,5 +1,5 @@
 // ===== DASHBOARD WITH DATABASE INTEGRATION =====
-import { db } from 'database.js'
+import { db } from './database.js'
 
 window.dashboard = {
   // Initialize dashboard

@@ -1,5 +1,5 @@
 // ===== AUTHENTICATION WITH DATABASE INTEGRATION =====
-import { db } from 'database.js'
+import { db } from './database.js'
 
 class AuthService {
     constructor() {
