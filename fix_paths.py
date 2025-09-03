@@ -2,26 +2,22 @@ import os
 import re
 
 def fix_file_paths(file_path):
-    """Fix all path types in HTML files to use parent directory paths"""
+    """Fix all paths in HTML files to use absolute paths from root"""
     try:
         with open(file_path, 'r', encoding='utf-8') as file:
             content = file.read()
         
-        # Fix CSS paths: /css/ -> ../css/ and ./css/ -> ../css/
-        content = re.sub(r'href="/css/', 'href="../css/', content)
-        content = re.sub(r'href="./css/', 'href="../css/', content)
+        # Fix CSS paths: ../css/ -> /css/
+        content = re.sub(r'href="\.\./css/', 'href="/css/', content)
         
-        # Fix image paths: /img/ -> ../img/ and ./img/ -> ../img/
-        content = re.sub(r'src="/img/', 'src="../img/', content)
-        content = re.sub(r'src="./img/', 'src="../img/', content)
+        # Fix image paths: ../img/ -> /img/
+        content = re.sub(r'src="\.\./img/', 'src="/img/', content)
         
-        # Fix JavaScript paths: /js/ -> ../js/ and ./js/ -> ../js/
-        content = re.sub(r'src="/js/', 'src="../js/', content)
-        content = re.sub(r'src="./js/', 'src="../js/', content)
+        # Fix JavaScript paths: ../js/ -> /js/
+        content = re.sub(r'src="\.\./js/', 'src="/js/', content)
         
-        # Fix import statements: /js/ -> ../js/ and ./js/ -> ../js/
-        content = re.sub(r'from "/js/', 'from "../js/', content)
-        content = re.sub(r'from "./js/', 'from "../js/', content)
+        # Fix import statements: ../js/ -> /js/
+        content = re.sub(r'from "\.\./js/', 'from "/js/', content)
         
         with open(file_path, 'w', encoding='utf-8') as file:
             file.write(content)
@@ -63,11 +59,11 @@ def main():
     print(f"Failed: {total_files - processed_files}")
     
     if processed_files > 0:
-        print(f"\nAll paths have been converted to parent directory paths:")
-        print(f"- /css/ and ./css/ → ../css/")
-        print(f"- /img/ and ./img/ → ../img/")
-        print(f"- /js/ and ./js/ → ../js/ (in src attributes)")
-        print(f"- /js/ and ./js/ → ../js/ (in import statements)")
+        print(f"\nAll relative paths have been converted to absolute paths:")
+        print(f"- ../css/ → /css/")
+        print(f"- ../img/ → /img/")
+        print(f"- ../js/ → /js/ (in src attributes)")
+        print(f"- ../js/ → /js/ (in import statements)")
 
 if __name__ == "__main__":
     main()

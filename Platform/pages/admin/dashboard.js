@@ -1,5 +1,5 @@
 // Dashboard JavaScript with Database Integration
-import { db } from '../js/database.js';
+import { db } from '../pages/js/database.js';
 
 class DashboardService {
     constructor() {
