@@ -8,21 +8,8 @@ logger = logging.getLogger(__name__)
 
 class DatabaseService:
     def __init__(self, supabase_url: str, supabase_key: str):
-        proxies = {}
-        http_proxy = os.getenv("HTTP_PROXY")
-        https_proxy = os.getenv("HTTPS_PROXY")
-        if http_proxy:
-            proxies["http://"] = http_proxy
-        if https_proxy:
-            proxies["https://"] = https_proxy
-
-        http_client = httpx.Client(proxies=proxies or None, timeout=30.0)
-
-        self.supabase: Client = create_client(
-            supabase_url,
-            supabase_key,
-            http_client=http_client,
-        )
+        # Use default client; supabase-py v2 does not accept http_client kwarg
+        self.supabase: Client = create_client(supabase_url, supabase_key)
         logger.info("Database service initialized")
 
     async def get_products(self) -> List[Dict[str, Any]]:
