@@ -29,7 +29,14 @@ window.dashboard = {
         .single();
 
       if (error || !user) {
-        console.error('Error loading user info:', error);
+        console.error('❌ Error loading user info:', error);
+        
+        // Show error message
+        const accNameEl = document.getElementById('accName');
+        const accEmailEl = document.getElementById('accEmail');
+
+        if (accNameEl) accNameEl.textContent = 'خطأ في التحميل';
+        if (accEmailEl) accEmailEl.textContent = '—';
         return;
       }
 
@@ -43,12 +50,21 @@ window.dashboard = {
 
         if (accNameEl) accNameEl.textContent = fullName;
         if (accEmailEl) accEmailEl.textContent = user.email;
+        
+        console.log('✅ User info loaded successfully:', { fullName, email: user.email });
       } else {
         if (accNameEl) accNameEl.textContent = 'مرحباً';
         if (accEmailEl) accEmailEl.textContent = '—';
       }
     } catch (error) {
-      console.error('Error loading user info:', error);
+      console.error('❌ Error loading user info:', error);
+      
+      // Show error message
+      const accNameEl = document.getElementById('accName');
+      const accEmailEl = document.getElementById('accEmail');
+
+      if (accNameEl) accNameEl.textContent = 'خطأ في التحميل';
+      if (accEmailEl) accEmailEl.textContent = '—';
     }
   },
 
@@ -57,7 +73,22 @@ window.dashboard = {
     try {
       // Get current user from localStorage
       const currentUserStr = localStorage.getItem('current_user');
-      if (!currentUserStr) return;
+      if (!currentUserStr) {
+        // Show message that user needs to login
+        const visitsEl = document.getElementById('kVisits');
+        const spendEl = document.getElementById('kSpend');
+        const avgEl = document.getElementById('kAvg');
+        const topEl = document.getElementById('kTop');
+
+        if (visitsEl) visitsEl.textContent = '—';
+        if (spendEl) spendEl.textContent = '—';
+        if (avgEl) avgEl.textContent = '—';
+        if (topEl) topEl.textContent = 'يرجى تسجيل الدخول';
+
+        // Show message in console for debugging
+        console.log('⚠️ No user logged in. Please login to see dashboard data.');
+        return;
+      }
 
       const currentUser = JSON.parse(currentUserStr);
       
@@ -78,21 +109,24 @@ window.dashboard = {
       const avgSpend = invoices.data?.length > 0 ? totalSpend / invoices.data.length : 0;
 
       if (visitsEl) visitsEl.textContent = visits;
-      if (spendEl) spendEl.textContent = db.formatCurrency(totalSpend);
-      if (avgEl) avgEl.textContent = db.formatCurrency(avgSpend);
+      if (spendEl) spendEl.textContent = db.formatCurrency ? db.formatCurrency(totalSpend) : `${totalSpend} ر.س`;
+      if (avgEl) avgEl.textContent = db.formatCurrency ? db.formatCurrency(avgSpend) : `${avgSpend} ر.س`;
       if (topEl) topEl.textContent = 'الرياض - دكان فيجين';
+
+      console.log('✅ KPIs loaded successfully:', { visits, totalSpend, avgSpend });
     } catch (error) {
-      console.error('Error loading KPIs:', error);
-      // Fallback to static data
+      console.error('❌ Error loading KPIs:', error);
+      
+      // Show error message to user
       const visitsEl = document.getElementById('kVisits');
       const spendEl = document.getElementById('kSpend');
       const avgEl = document.getElementById('kAvg');
       const topEl = document.getElementById('kTop');
 
-      if (visitsEl) visitsEl.textContent = '0';
-      if (spendEl) spendEl.textContent = '0 ر.س';
-      if (avgEl) avgEl.textContent = '0 ر.س';
-      if (topEl) topEl.textContent = '—';
+      if (visitsEl) visitsEl.textContent = 'خطأ';
+      if (spendEl) spendEl.textContent = 'خطأ';
+      if (avgEl) avgEl.textContent = 'خطأ';
+      if (topEl) topEl.textContent = 'خطأ في التحميل';
     }
   },
 
