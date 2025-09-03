@@ -119,7 +119,7 @@ class AdminIndexService {
             localStorage.removeItem('twq_is_admin');
             
             // Redirect to login page
-            window.location.href = '../pages/login.html';
+            window.location.href = 'login.html';
         }
     }
 

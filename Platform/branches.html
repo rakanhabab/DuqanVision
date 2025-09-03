@@ -3,12 +3,12 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>إدارة العمليات | دكان فيجين</title>
-    <meta name="description" content="إدارة العمليات - لوحة تحكم دكان فيجين" />
+    <title>إدارة الفروع | دكان فيجين</title>
+    <meta name="description" content="إدارة الفروع - لوحة تحكم دكان فيجين" />
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../pages/base.css">
+    <link rel="stylesheet" href="base.css">
     <link rel="stylesheet" href="./admin.css">
-    <link rel="stylesheet" href="./operations.css">
+    <link rel="stylesheet" href="./branches.css">
 </head>
 <body>
     <div class="admin-container">
@@ -16,7 +16,7 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="brand">
-                    <img src="../pages/Logo.png" alt="دكان فيجين" style="width: 120px; height: 120px; object-fit: contain;">
+                    <img src="Logo.png" alt="دكان فيجين" style="width: 120px; height: 120px; object-fit: contain;">
                 </div>
             </div>
             <nav class="sidebar-nav">
@@ -26,7 +26,7 @@
                             الواجهة الرئيسية
                         </a>
                     </li>
-                    <li class="nav-item active">
+                    <li class="nav-item">
                         <a href="./operations.html" class="nav-link">
                             إدارة العمليات
                         </a>
@@ -41,7 +41,7 @@
                             إدارة المخزون
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item active">
                         <a href="./branches.html" class="nav-link">
                             إدارة الفروع
                         </a>
@@ -58,29 +58,28 @@
         <!-- Main Content -->
         <main class="main-content">
             <header class="content-header">
-                <h1>إدارة العمليات</h1>
-                <h2>العربات الافتراضية (LiveStream)</h2>
+                <h1>إدارة الفروع</h1>
+                <h2>فروع مدينة الرياض</h2>
             </header>
             
-            <!-- Customer Sessions Section -->
-            <div class="customer-sessions-section">
-                <div class="sessions-header">
-                    <h3>جلسات العملاء النشطة</h3>
-                    <div class="session-filters">
-                        <button class="filter-btn active" data-filter="all">all</button>
-                        <button class="filter-btn" data-filter="processing">processing</button>
-                        <button class="filter-btn" data-filter="paid">paid</button>
-                        <button class="filter-btn" data-filter="unpaid">unpaid</button>
+            <!-- Branches Cards Section -->
+            <div class="branches-cards-section">
+                <div class="branch-cards-grid" id="branchesGrid">
+                    <!-- Branches will be loaded dynamically from database -->
+                    <div class="loading-branches">
+                        <div class="loading-spinner"></div>
+                        <p>جاري تحميل الفروع...</p>
                     </div>
                 </div>
-                
-                <div class="sessions-list ltr-content" id="sessionsGrid">
-                    <!-- Customer Session Cards will be populated dynamically -->
-                </div>
             </div>
+
+
         </main>
     </div>
+
+    <!-- Removed Edit Branch Modal since editing is disabled -->
+
     <script type="module" src="./admin.js"></script>
-    <script type="module" src="./operations.js"></script>
+    <script type="module" src="./branches.js"></script>
 </body>
 </html>

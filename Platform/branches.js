@@ -1,5 +1,5 @@
 // Branches Management JavaScript with Database Integration
-import { db } from '../pages/js/database.js';
+import { db } from './database.js';
 
 class BranchesService {
     constructor() {

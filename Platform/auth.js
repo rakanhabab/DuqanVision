@@ -75,7 +75,7 @@ class AuthService {
                 if (isAdmin) {
                     window.location.href = '../admin/dashboard.html'
                 } else {
-                    window.location.href = '../pages/user.html'
+                    window.location.href = 'user.html'
                 }
             }, 1500)
             

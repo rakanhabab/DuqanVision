@@ -1,5 +1,5 @@
 // Operations Management JavaScript - Technical Version
-import { db } from '../pages/js/database.js';
+import { db } from 'database.js';
 
 class OperationsService {
     constructor() {
