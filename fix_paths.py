@@ -16,6 +16,12 @@ def fix_file_paths(file_path):
         # Fix JavaScript paths: ../js/ -> /js/
         content = re.sub(r'src="\.\./js/', 'src="/js/', content)
         
+        # Fix import statements: ../js/ -> /js/
+        content = re.sub(r'from "\.\./js/', 'from "/js/', content)
+        
+        # Fix any remaining ../js/ patterns
+        content = re.sub(r'\.\./js/', '/js/', content)
+        
         with open(file_path, 'w', encoding='utf-8') as file:
             file.write(content)
         
@@ -59,7 +65,9 @@ def main():
         print(f"\nAll relative paths have been converted to absolute paths:")
         print(f"- ../css/ → /css/")
         print(f"- ../img/ → /img/")
-        print(f"- ../js/ → /js/")
+        print(f"- ../js/ → /js/ (in src attributes)")
+        print(f"- ../js/ → /js/ (in import statements)")
+        print(f"- ../js/ → /js/ (any remaining patterns)")
 
 if __name__ == "__main__":
     main()
