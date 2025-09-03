@@ -21,7 +21,7 @@ class DatabaseService:
         self.supabase: Client = create_client(
             supabase_url,
             supabase_key,
-            options={"http_client": http_client},
+            http_client=http_client,
         )
         logger.info("Database service initialized")
 
