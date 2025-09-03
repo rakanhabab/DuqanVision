@@ -6,8 +6,8 @@
     <title>لوحة تحكم دكان فيجين | Dukkan Vision Admin</title>
     <meta name="description" content="لوحة تحكم إدارة متجر دكان فيجين" />
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="base.css">
-    <link rel="stylesheet" href="admin.css">
+    <!-- <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="admin.css"> -->
     <link rel="stylesheet" href="dashboard.css">
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script>
@@ -20,6 +20,25 @@
             }
         });
     </script>
+    <style>
+        .empty-chart {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            color: #666;
+            font-size: 16px;
+            text-align: center;
+        }
+        
+        .empty-chart p {
+            margin: 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px dashed #dee2e6;
+        }
+    </style>
 </head>
 <body>
     <div class="admin-container">

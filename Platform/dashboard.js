@@ -6,6 +6,7 @@ window.dashboard = {
   async init() {
     await this.loadUserInfo();
     await this.loadKPIs();
+    await this.loadCharts(); // Load charts
     this.initBarcodePages();
   },
 
@@ -225,6 +226,299 @@ window.dashboard = {
       colorLight: '#FFFFFF',
       correctLevel: QRCode.CorrectLevel.M
     });
+  },
+
+  // Load and display charts
+  async loadCharts() {
+    try {
+      // Check if Plotly is available
+      if (typeof Plotly === 'undefined') {
+        console.log('⚠️ Plotly not loaded yet, waiting...');
+        setTimeout(() => this.loadCharts(), 1000);
+        return;
+      }
+
+      console.log('📊 Loading charts...');
+      
+      // Load chart data from database
+      await this.loadBranchSalesChart();
+      await this.loadRevenueChart();
+      await this.loadCategoryChart();
+      await this.loadLowStockChart();
+      
+      console.log('✅ Charts loaded successfully');
+    } catch (error) {
+      console.error('❌ Error loading charts:', error);
+      this.showEmptyCharts();
+    }
+  },
+
+  // Load branch sales chart
+  async loadBranchSalesChart() {
+    try {
+      // Get branch sales data from database
+      const { data: branchData, error } = await db.supabase
+        .from('branches')
+        .select('name, total_sales')
+        .order('total_sales', { ascending: false })
+        .limit(5);
+
+      if (error || !branchData || branchData.length === 0) {
+        this.showEmptyBranchChart();
+        return;
+      }
+
+      // Create chart data
+      const chartData = [{
+        x: branchData.map(branch => branch.name || 'فرع غير محدد'),
+        y: branchData.map(branch => branch.total_sales || 0),
+        type: 'bar',
+        marker: {
+          color: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7']
+        }
+      }];
+
+      const layout = {
+        title: 'مبيعات الفروع',
+        font: { family: 'Arial, sans-serif', size: 14 },
+        margin: { l: 50, r: 50, t: 50, b: 100 },
+        xaxis: { 
+          title: 'الفروع',
+          tickangle: -45
+        },
+        yaxis: { 
+          title: 'المبيعات (ر.س)',
+          tickformat: ',.0f'
+        }
+      };
+
+      const container = document.getElementById('branchSalesChart');
+      if (container) {
+        Plotly.newPlot('branchSalesChart', chartData, layout, { 
+          displayModeBar: false, 
+          responsive: true 
+        });
+      }
+    } catch (error) {
+      console.error('❌ Error loading branch sales chart:', error);
+      this.showEmptyBranchChart();
+    }
+  },
+
+  // Load revenue chart
+  async loadRevenueChart() {
+    try {
+      // Get monthly revenue data from database
+      const { data: revenueData, error } = await db.supabase
+        .from('invoices')
+        .select('created_at, total_amount')
+        .gte('created_at', new Date(new Date().getFullYear(), 0, 1).toISOString());
+
+      if (error || !revenueData || revenueData.length === 0) {
+        this.showEmptyRevenueChart();
+        return;
+      }
+
+      // Group by month
+      const monthlyRevenue = {};
+      revenueData.forEach(invoice => {
+        const month = new Date(invoice.created_at).getMonth();
+        const monthName = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 
+                          'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'][month];
+        monthlyRevenue[monthName] = (monthlyRevenue[monthName] || 0) + (invoice.total_amount || 0);
+      });
+
+      const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'];
+      const revenue = months.map(month => monthlyRevenue[month] || 0);
+
+      const chartData = [{
+        x: months,
+        y: revenue,
+        type: 'scatter',
+        mode: 'lines+markers',
+        line: { color: '#4ECDC4', width: 3 },
+        marker: { size: 8, color: '#4ECDC4' }
+      }];
+
+      const layout = {
+        title: 'الإيرادات الشهرية',
+        font: { family: 'Arial, sans-serif', size: 14 },
+        margin: { l: 50, r: 50, t: 50, b: 80 },
+        xaxis: { title: 'الشهر' },
+        yaxis: { 
+          title: 'الإيرادات (ر.س)',
+          tickformat: ',.0f'
+        }
+      };
+
+      const container = document.getElementById('revenueChart');
+      if (container) {
+        Plotly.newPlot('revenueChart', chartData, layout, { 
+          displayModeBar: false, 
+          responsive: true 
+        });
+      }
+    } catch (error) {
+      console.error('❌ Error loading revenue chart:', error);
+      this.showEmptyRevenueChart();
+    }
+  },
+
+  // Load category chart
+  async loadCategoryChart() {
+    try {
+      // Get product category data from database
+      const { data: categoryData, error } = await db.supabase
+        .from('products')
+        .select('category, quantity_sold')
+        .not('category', 'is', null);
+
+      if (error || !categoryData || categoryData.length === 0) {
+        this.showEmptyCategoryChart();
+        return;
+      }
+
+      // Group by category
+      const categorySales = {};
+      categoryData.forEach(product => {
+        const category = product.category || 'أخرى';
+        categorySales[category] = (categorySales[category] || 0) + (product.quantity_sold || 0);
+      });
+
+      const categories = Object.keys(categorySales);
+      const sales = Object.values(categorySales);
+
+      const chartData = [{
+        values: sales,
+        labels: categories,
+        type: 'pie',
+        hole: 0.4,
+        marker: {
+          colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD']
+        }
+      }];
+
+      const layout = {
+        title: 'المنتجات المباعة حسب الفئة',
+        font: { family: 'Arial, sans-serif', size: 14 },
+        margin: { l: 50, r: 50, t: 50, b: 50 }
+      };
+
+      const container = document.getElementById('categoryChart');
+      if (container) {
+        Plotly.newPlot('categoryChart', chartData, layout, { 
+          displayModeBar: false, 
+          responsive: true 
+        });
+      }
+    } catch (error) {
+      console.error('❌ Error loading category chart:', error);
+      this.showEmptyCategoryChart();
+    }
+  },
+
+  // Load low stock chart
+  async loadLowStockChart() {
+    try {
+      // Get product stock data from database
+      const { data: stockData, error } = await db.supabase
+        .from('products')
+        .select('name, current_stock, min_stock_level');
+
+      if (error || !stockData || stockData.length === 0) {
+        this.showEmptyLowStockChart();
+        return;
+      }
+
+      // Categorize stock levels
+      const stockLevels = {
+        'متوفر': 0,
+        'كمية قليلة': 0,
+        'نفذ المخزون': 0
+      };
+
+      stockData.forEach(product => {
+        const stock = product.current_stock || 0;
+        const minLevel = product.min_stock_level || 5;
+        
+        if (stock === 0) {
+          stockLevels['نفذ المخزون']++;
+        } else if (stock <= minLevel) {
+          stockLevels['كمية قليلة']++;
+        } else {
+          stockLevels['متوفر']++;
+        }
+      });
+
+      const categories = Object.keys(stockLevels);
+      const counts = Object.values(stockLevels);
+
+      const chartData = [{
+        values: counts,
+        labels: categories,
+        type: 'pie',
+        marker: {
+          colors: ['#96CEB4', '#FFEAA7', '#FF6B6B']
+        }
+      }];
+
+      const layout = {
+        title: 'توافر المنتجات',
+        font: { family: 'Arial, sans-serif', size: 14 },
+        margin: { l: 50, r: 50, t: 50, b: 50 }
+      };
+
+      const container = document.getElementById('lowStockChart');
+      if (container) {
+        Plotly.newPlot('lowStockChart', chartData, layout, { 
+          displayModeBar: false, 
+          responsive: true 
+        });
+      }
+    } catch (error) {
+      console.error('❌ Error loading low stock chart:', error);
+      this.showEmptyLowStockChart();
+    }
+  },
+
+  // Show empty charts when no data
+  showEmptyCharts() {
+    this.showEmptyBranchChart();
+    this.showEmptyRevenueChart();
+    this.showEmptyCategoryChart();
+    this.showEmptyLowStockChart();
+  },
+
+  // Show empty branch chart
+  showEmptyBranchChart() {
+    const container = document.getElementById('branchSalesChart');
+    if (container) {
+      container.innerHTML = '<div class="empty-chart"><p>لا توجد بيانات متاحة</p></div>';
+    }
+  },
+
+  // Show empty revenue chart
+  showEmptyRevenueChart() {
+    const container = document.getElementById('revenueChart');
+    if (container) {
+      container.innerHTML = '<div class="empty-chart"><p>لا توجد بيانات متاحة</p></div>';
+    }
+  },
+
+  // Show empty category chart
+  showEmptyCategoryChart() {
+    const container = document.getElementById('categoryChart');
+    if (container) {
+      container.innerHTML = '<div class="empty-chart"><p>لا توجد بيانات متاحة</p></div>';
+    }
+  },
+
+  // Show empty low stock chart
+  showEmptyLowStockChart() {
+    const container = document.getElementById('lowStockChart');
+    if (container) {
+      container.innerHTML = '<div class="empty-chart"><p>لا توجد بيانات متاحة</p></div>';
+    }
   }
 };
 
