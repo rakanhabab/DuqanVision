@@ -25,7 +25,8 @@ requests==2.31.0
 aiohttp==3.8.6
 
 # Database and Supabase
-supabase==2.4.0
+supabase==2.3.5
+
 
 
 # Data processing (essential for RAG)
