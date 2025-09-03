@@ -1,5 +1,5 @@
 // ===== AUTHENTICATION WITH DATABASE INTEGRATION =====
-import { db } from './database.js'
+import { db } from 'database.js'
 
 class AuthService {
     constructor() {
@@ -73,7 +73,7 @@ class AuthService {
             
             setTimeout(() => {
                 if (isAdmin) {
-                    window.location.href = '../admin/dashboard.html'
+                    window.location.href = 'dashboard.html'
                 } else {
                     window.location.href = 'user.html'
                 }
