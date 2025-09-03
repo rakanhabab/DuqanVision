@@ -37,7 +37,7 @@ class SemanticSearchService:
         self.supabase: Client = create_client(
             supabase_url,
             supabase_key,
-            http_client=http_client,
+            
         )
         
         # Define semantic patterns for different question categories
