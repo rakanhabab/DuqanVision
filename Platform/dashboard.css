@@ -312,9 +312,9 @@
   
   .chart-container {
       height: 250px;
-    padding: 16px;
+      padding: 16px;
   }
-} 
+}
 
 @media (max-width: 480px) {
   .stats-grid {
