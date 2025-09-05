@@ -150,14 +150,14 @@ The RAG-powered chatbot can help with:
 The frontend uses modern ES6 modules and Supabase integration:
 
 ```bash
-cd Front-End-new
+cd Platform
 # All pages use ES6 modules for better organization
 # Database integration through database.js
 # Page-specific services in js/ directory
 ```
 
 ### Backend Development
-The backend uses FastAPI for the RAG system (see `rag_api.py` and `refactored_rag_system/`):
+The backend uses FastAPI for the RAG system (see `rag_api.py` and `Rag_system/`):
 
 ```bash
 # Start development server
@@ -227,13 +227,7 @@ python start_server.py
 - **Branches**: Real branch information (no editing)
 - **Tickets**: Actual support tickets with refund tracking
 
-## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
 
 ## 📝 License
 
@@ -263,4 +257,5 @@ For support and questions:
 ---
 
 **Built with ❤️ for Tuwaiq Bootcamp**
+
 
