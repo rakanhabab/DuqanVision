@@ -92,8 +92,8 @@ python start_server.py
 ```
 
 ### 5. Serve the Frontend
-- Option A: From `Front-End-new/admin`, run `python server.py` and open the printed URLs
-- Option B: Use any static server (e.g., VS Code Live Server) and open `Front-End-new/pages/index.html`
+- Option A: From `Platform/admin`, run `python server.py` and open the printed URLs
+- Option B: Use any static server (e.g., VS Code Live Server) and open `Platfrom/pages/index.html`
 
 ## 🔧 Configuration
 
@@ -236,7 +236,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 🆘 Support
 
 For support and questions:
-- Check the documentation in `Front-End-new/database_schema.md`
+- Check the documentation in `Platform/database_schema.md`
 - Review the code comments for implementation details
 - Open an issue on GitHub for bugs or feature requests
 
@@ -257,5 +257,6 @@ For support and questions:
 ---
 
 **Built with ❤️ for Tuwaiq Bootcamp**
+
 
 
