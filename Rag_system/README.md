@@ -1,9 +1,9 @@
-# Refactored RAG System
+#  RAG System
 
 ## 📁 Folder Structure
 
 ```
-refactored_rag_system/
+Rag_system/
 ├── config.py                    # All configurations and responses
 ├── db_service.py               # Database interactions
 ├── smart_service.py            # Smart responses and formatting
@@ -127,3 +127,4 @@ SMART_PRODUCT_QUERIES = {
 ```
 
 The system will automatically handle the new product in all queries! 🎉
+
