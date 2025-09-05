@@ -32,7 +32,7 @@ class AdminCommonService {
         
         if (!isAdmin) {
             alert('غير مصرح لك بالوصول إلى لوحة التحكم');
-            window.location.href = '../pages/login.html';
+            window.location.href = '../login.html';
             return;
         }
     }
@@ -179,7 +179,7 @@ class AdminCommonService {
             localStorage.removeItem('twq_is_admin');
             
             // Redirect to login page
-            window.location.href = '../pages/login.html';
+            window.location.href = '../login.html';
         }
     }
 
