@@ -1,11 +1,14 @@
 from typing import Dict, List, Any, Optional
 from supabase import create_client, Client
 import logging
+import os
+import httpx
 
 logger = logging.getLogger(__name__)
 
 class DatabaseService:
     def __init__(self, supabase_url: str, supabase_key: str):
+        # Use default client; supabase-py v2 does not accept http_client kwarg
         self.supabase: Client = create_client(supabase_url, supabase_key)
         logger.info("Database service initialized")
 

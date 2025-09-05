@@ -4,6 +4,8 @@ from typing import Dict, List, Tuple, Optional, Any
 import logging
 from supabase import create_client, Client
 import asyncio
+import os
+import httpx
 
 logger = logging.getLogger(__name__)
 
@@ -21,8 +23,22 @@ class SemanticSearchService:
         # Initialize OpenAI client
         openai.api_key = openai_api_key
         
-        # Initialize Supabase client
-        self.supabase: Client = create_client(supabase_url, supabase_key)
+        # Initialize Supabase client with optional proxy via httpx
+        proxies = {}
+        http_proxy = os.getenv("HTTP_PROXY")
+        https_proxy = os.getenv("HTTPS_PROXY")
+        if http_proxy:
+            proxies["http://"] = http_proxy
+        if https_proxy:
+            proxies["https://"] = https_proxy
+
+        http_client = httpx.Client(proxies=proxies or None, timeout=30.0)
+
+        self.supabase: Client = create_client(
+            supabase_url,
+            supabase_key,
+            
+        )
         
         # Define semantic patterns for different question categories
         self.semantic_patterns = {
