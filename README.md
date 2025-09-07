@@ -1,4 +1,4 @@
-# 🏪 DUQANVISION - Smart Retail Management System
+# DUQANVISION - Smart Retail Management System
 
 A comprehensive retail management system with AI-powered features, QR code tracking, and real-time inventory management. Built with modern web technologies and integrated with Supabase for robust data management.
 
@@ -263,3 +263,4 @@ For support and questions:
 ---
 
 **Built with ❤️ for Tuwaiq Bootcamp**
+
